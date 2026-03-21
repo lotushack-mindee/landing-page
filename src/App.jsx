@@ -275,11 +275,10 @@ const GLOBE_MARKERS = [
 function LaptopMockup({ scrollY, mouse, inView }) {
   const globeRef   = useRef(null);
   const wrapperRef = useRef(null);
-  const [hovered, setHovered] = useState(false);
   const SIZE = 560;
   const parallaxY = scrollY * -0.28;
 
-  // Setup controls once globe is ready
+  // Setup controls once globe is ready — no user interaction, auto-rotate only
   useEffect(() => {
     if (!globeRef.current) return;
     const ctrl = globeRef.current.controls();
@@ -287,81 +286,45 @@ function LaptopMockup({ scrollY, mouse, inView }) {
     ctrl.autoRotateSpeed = 0.8;
     ctrl.enableZoom      = false;
     ctrl.enablePan       = false;
+    ctrl.enableRotate    = false;
   }, []);
-
-  // Hover: slow/pause auto-rotate, speed up on leave
-  useEffect(() => {
-    if (!globeRef.current) return;
-    const ctrl = globeRef.current.controls();
-    ctrl.autoRotateSpeed = hovered ? 0 : 0.8;
-  }, [hovered]);
-
-  // Mouse-move over globe → tilt + track longitude
-  const handleMouseMove = (e) => {
-    if (!globeRef.current || !wrapperRef.current) return;
-    const rect = wrapperRef.current.getBoundingClientRect();
-    const nx = (e.clientX - rect.left) / rect.width  - 0.5;  // -0.5 → 0.5
-    const ny = (e.clientY - rect.top)  / rect.height - 0.5;
-    const pov = globeRef.current.pointOfView();
-    globeRef.current.pointOfView(
-      { lat: ny * -30, lng: pov.lng + nx * 2, altitude: pov.altitude },
-      80
-    );
-  };
-
-  // Wheel → spin the globe
-  const handleWheel = (e) => {
-    e.preventDefault();
-    if (!globeRef.current) return;
-    const pov = globeRef.current.pointOfView();
-    const delta = e.deltaY * 0.12;
-    globeRef.current.pointOfView({ ...pov, lng: pov.lng + delta }, 0);
-  };
 
   return (
     <div
       ref={wrapperRef}
       className={`reveal-right ${inView ? "visible" : ""} delay-2`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onMouseMove={handleMouseMove}
-      onWheel={handleWheel}
       style={{
         position: "relative", flexShrink: 0,
         width: SIZE, height: SIZE,
-        transform: `translateY(${parallaxY}px) scale(${hovered ? 1.045 : 1})`,
-        transition: "transform 0.38s cubic-bezier(0.34,1.56,0.64,1), opacity 0.9s ease",
+        transform: `translateY(${parallaxY}px)`,
+        transition: "opacity 0.9s ease",
         willChange: "transform",
-        cursor: hovered ? "grab" : "default",
+        cursor: "default",
       }}
     >
-      {/* Red outer halo — intensifies on hover */}
+      {/* Red outer halo */}
       <div style={{
         position: "absolute", inset: -70, borderRadius: "50%",
-        background: `radial-gradient(circle, rgba(200,32,42,${hovered ? 0.72 : 0.5}) 0%, rgba(200,32,42,${hovered ? 0.28 : 0.18}) 50%, transparent 72%)`,
-        filter: `blur(${hovered ? 40 : 48}px)`,
-        transition: "all 0.4s ease",
+        background: "radial-gradient(circle, rgba(200,32,42,0.5) 0%, rgba(200,32,42,0.18) 50%, transparent 72%)",
+        filter: "blur(48px)",
         pointerEvents: "none", zIndex: 0,
       }}/>
       {/* Gold accent */}
       <div style={{
         position: "absolute", top: -30, right: -30, width: 180, height: 180,
-        background: `radial-gradient(circle, rgba(232,160,32,${hovered ? 0.6 : 0.38}) 0%, transparent 70%)`,
-        filter: "blur(32px)", transition: "all 0.4s ease",
+        background: "radial-gradient(circle, rgba(232,160,32,0.38) 0%, transparent 70%)",
+        filter: "blur(32px)",
         pointerEvents: "none", zIndex: 0,
       }}/>
-      {/* Atmosphere glow ring — pulses on hover */}
+      {/* Atmosphere glow ring */}
       <div style={{
         position: "absolute", inset: -10, borderRadius: "50%",
-        boxShadow: hovered
-          ? "0 0 90px rgba(100,160,255,0.55), 0 0 160px rgba(200,32,42,0.4), 0 0 30px rgba(255,255,255,0.08)"
-          : "0 0 60px rgba(100,160,255,0.35), 0 0 120px rgba(200,32,42,0.25)",
-        transition: "box-shadow 0.4s ease",
+        boxShadow: "0 0 60px rgba(100,160,255,0.35), 0 0 120px rgba(200,32,42,0.25)",
         pointerEvents: "none", zIndex: 2,
       }}/>
 
-      {/* Globe — clipped to circle */}
-      <div style={{ position: "relative", zIndex: 1, borderRadius: "50%", overflow: "hidden", width: SIZE, height: SIZE }}>
+      {/* Globe — clipped to circle, tilted 25° clockwise */}
+      <div style={{ position: "relative", zIndex: 1, borderRadius: "50%", overflow: "hidden", width: SIZE, height: SIZE, transform: "rotate(25deg)" }}>
         <Suspense fallback={<div style={{ width: SIZE, height: SIZE, borderRadius: "50%", background: "#0d3d6e" }}/>}>
           <Globe
             ref={globeRef}
