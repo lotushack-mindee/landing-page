@@ -786,7 +786,7 @@ function Slide2() {
         </div>
 
         <div className={`reveal ${inView ? "visible" : ""} delay-5`} style={{ marginTop: 36 }}>
-          <button className="btn-primary" style={{ width: "100%", fontSize: "1.05rem", padding: "16px" }}>
+          <button className="btn-primary" style={{ width: "100%", fontSize: "1.05rem", padding: "16px" }} onClick={() => window.open("https://lotushack.rotexai.com", "_blank")}>
             Analyze with AI →
           </button>
         </div>
@@ -1363,7 +1363,7 @@ function Slide6() {
                   <textarea className="field-input" placeholder="Share more about your goals..." rows={3} style={{ resize: "none" }} />
                 </div>
 
-                <button className="btn-primary" style={{ width: "100%", marginTop: 8, fontSize: "1rem", padding: "15px" }}>
+                <button className="btn-primary" style={{ width: "100%", marginTop: 8, fontSize: "1rem", padding: "15px" }} onClick={() => window.open("https://lotushack.rotexai.com", "_blank")}>
                   Book a Consultation →
                 </button>
               </div>
