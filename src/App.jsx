@@ -526,14 +526,14 @@ function Slide1() {
             AI that personalizes your student's profile —<br />
             not generic advice like GPT.
           </p>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 24, marginTop: 36 }}>
-            {/* Buttons */}
-            <div className={`hero-cta reveal ${inView ? "visible" : ""} delay-3`} style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <button className="btn-primary" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>Get Started →</button>
-              <button className="btn-ghost" onClick={() => document.getElementById("engine")?.scrollIntoView({ behavior: "smooth" })}>View Demo</button>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginTop: 36 }}>
+            {/* Buttons — stacked, equal width */}
+            <div className={`hero-cta reveal ${inView ? "visible" : ""} delay-3`} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <button className="btn-primary" style={{ width: "100%" }} onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>Get Started →</button>
+              <button className="btn-ghost"   style={{ width: "100%" }} onClick={() => document.getElementById("engine")?.scrollIntoView({ behavior: "smooth" })}>View Demo</button>
             </div>
 
-            {/* QR code */}
+            {/* QR code — gap same as between buttons (14px) */}
             <div className={`reveal ${inView ? "visible" : ""} delay-4`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flexShrink: 0 }}>
               <span style={{ fontSize: "0.62rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(245,240,232,0.4)", fontFamily: "'Be Vietnam Pro', sans-serif", fontWeight: 700 }}>Scan Me</span>
               <img
