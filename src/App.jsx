@@ -301,13 +301,13 @@ function Slide1() {
       </div>{/* end inner max-width */}
       </div>{/* end flex-1 center wrapper */}
 
-      {/* ── Full-bleed red stats bar ── */}
-      <div className={`reveal ${inView ? "visible" : ""} delay-5`} style={{ width: "100%", background: "var(--red)", position: "relative", zIndex: 2 }}>
+      {/* ── Full-bleed cream stats bar ── */}
+      <div className={`reveal ${inView ? "visible" : ""} delay-5`} style={{ width: "100%", background: "var(--cream)", position: "relative", zIndex: 2 }}>
         {/* Ticker */}
-        <div style={{ background: "rgba(0,0,0,0.18)", overflow: "hidden", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
+        <div style={{ background: "rgba(0,0,0,0.06)", overflow: "hidden", padding: "10px 0", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
           <div style={{ display: "flex", whiteSpace: "nowrap", animation: "ticker 28s linear infinite" }}>
             {[1,2].map(k => (
-              <span key={k} style={{ display: "inline-block", paddingRight: 80, fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", letterSpacing: "0.03em" }}>
+              <span key={k} style={{ display: "inline-block", paddingRight: 80, fontSize: "0.8rem", fontWeight: 600, color: "rgba(12,15,19,0.65)", letterSpacing: "0.03em" }}>
                 Tự hào học sinh ETEST vinh danh vào các trường đại học hàng đầu như MIT · Caltech · UC Berkeley · UCLA · Cornell · NYU · Boston University · King's College London · University of Edinburgh · RMIT · Monash ·&nbsp;
               </span>
             ))}
@@ -323,12 +323,12 @@ function Slide1() {
           ].map(({ n, label, desc }, i) => (
             <div key={label} style={{
               padding: "44px 40px",
-              borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.18)" : "none",
+              borderLeft: i > 0 ? "1px solid rgba(12,15,19,0.12)" : "none",
               textAlign: "center",
             }}>
-              <div className="font-mono-dm" style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 800, color: "#ffffff", lineHeight: 1, letterSpacing: "-0.02em" }}>{n}</div>
-              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#ffffff", letterSpacing: "0.14em", marginTop: 12, marginBottom: 10 }}>{label}</div>
-              <div style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.72)", lineHeight: 1.6 }}>{desc}</div>
+              <div className="font-mono-dm" style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 800, color: "var(--ink)", lineHeight: 1, letterSpacing: "-0.02em" }}>{n}</div>
+              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.14em", marginTop: 12, marginBottom: 10 }}>{label}</div>
+              <div style={{ fontSize: "0.82rem", color: "rgba(12,15,19,0.55)", lineHeight: 1.6 }}>{desc}</div>
             </div>
           ))}
         </div>
@@ -376,73 +376,67 @@ function SlideProblem() {
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 1140, width: "100%", margin: "0 auto", padding: "100px 40px 100px" }}>
 
-        {/* ═══ BLOCK 1 — Vấn đề ═══ */}
-        <div className={`reveal ${inView ? "visible" : ""}`}
-          style={{ display: "grid", gridTemplateColumns: "1fr 1.55fr", gap: 56, alignItems: "center", marginBottom: 72 }}>
-
-          {/* LEFT */}
-          <div>
-            <span className="eyebrow" style={{ marginBottom: 20, display: "block" }}>02 — Bài toán</span>
+        {/* ═══ BLOCK 1 — Vấn đề (centered 3-card) ═══ */}
+        <div style={{ marginBottom: 96 }}>
+          {/* Centered header */}
+          <div className={`reveal ${inView ? "visible" : ""}`} style={{ textAlign: "center", marginBottom: 56 }}>
+            <span className="eyebrow" style={{ marginBottom: 16, display: "block" }}>02 — Bài toán</span>
             <h2 className="font-display" style={{
-              fontSize: "clamp(2.2rem, 3.5vw, 3.2rem)", fontWeight: 800,
-              color: "var(--cream)", letterSpacing: "-0.02em", lineHeight: 1.15,
-              textTransform: "uppercase", marginBottom: 20,
+              fontSize: "clamp(2.4rem, 4vw, 3.6rem)", fontWeight: 800,
+              color: "var(--cream)", letterSpacing: "-0.02em", lineHeight: 1.1,
+              marginBottom: 16,
             }}>
-              Tại sao<br />gia đình Việt Nam<br />
+              Tại sao gia đình Việt Nam<br />
               <span style={{ color: "var(--red)" }}>đang gặp khó?</span>
             </h2>
-            <p style={{ color: "var(--cream-dim)", fontSize: "0.92rem", lineHeight: 1.7, marginBottom: 32, maxWidth: 320 }}>
-              Học sinh cấp 3 đứng trước hàng nghìn lựa chọn mà không có công cụ cá nhân hoá nào hỗ trợ đúng nghĩa.
+            <p style={{ color: "var(--cream-dim)", fontSize: "0.98rem", lineHeight: 1.7, maxWidth: 560, margin: "0 auto" }}>
+              Học sinh cấp 3 đứng trước hàng nghìn lựa chọn mà không có<br />công cụ cá nhân hoá nào hỗ trợ đúng nghĩa.
             </p>
-            <button
-              className="btn-primary"
-              onClick={() => document.getElementById("engine")?.scrollIntoView({ behavior: "smooth" })}
-              style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "12px 24px", fontSize: "0.88rem" }}
-            >
-              Xem giải pháp <span style={{ fontSize: "1rem" }}>↗</span>
-            </button>
           </div>
 
-          {/* RIGHT — Pain card */}
-          <div className={`reveal ${inView ? "visible" : ""} delay-1`} style={{ position: "relative" }}>
-            <div style={{
-              background: CARD_BG, borderRadius: 22,
-              border: `1px solid ${CARD_BORDER}`,
-              overflow: "hidden",
-              boxShadow: "0 24px 64px rgba(0,0,0,0.45)",
-            }}>
-              {pains.map((p, i) => (
-                <div key={p.badge} style={{
-                  display: "flex", alignItems: "flex-start", gap: 18,
-                  padding: "22px 28px",
-                  borderBottom: i < pains.length - 1 ? `1px solid rgba(245,240,232,0.07)` : "none",
-                }}>
-                  {/* Pill badge */}
-                  <div style={{
-                    background: LIME, color: LIME_TEXT,
-                    fontSize: "0.68rem", fontWeight: 700,
-                    padding: "4px 12px", borderRadius: 20,
-                    letterSpacing: "0.03em", whiteSpace: "nowrap",
-                    flexShrink: 0, marginTop: 2,
-                  }}>{p.badge}</div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "var(--cream)", marginBottom: 6 }}>{p.title}</div>
-                    <div style={{ fontSize: "0.83rem", color: "var(--cream-dim)", lineHeight: 1.65 }}>{p.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* 3 cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+            {[
+              { icon: "🌊", badge: "Vấn đề 1", title: "Quá tải thông tin",          items: ["Hàng nghìn trường, hàng trăm chương trình", "Không biết bắt đầu từ đâu", "Dễ bị agencies không uy tín dẫn dắt", "Thiếu công cụ so sánh đáng tin cậy"] },
+              { icon: "🤖", badge: "Vấn đề 2", title: "AI hiện tại quá chung chung", items: ["GPT không biết GPA của con bạn", "Không hiểu ngân sách gia đình", "Không có dữ liệu tuyển sinh thực", "Tư vấn theo kiểu 'one-size-fits-all'"] },
+              { icon: "💸", badge: "Vấn đề 3", title: "Chi phí tư vấn cao",          items: ["$3,000–$5,000 USD phí tư vấn", "Tư vấn đại trà, không cá nhân hoá", "Không cam kết kết quả cụ thể", "Khó tiếp cận với gia đình tỉnh lẻ"] },
+            ].map((p, i) => (
+              <div
+                key={p.badge}
+                className={`reveal ${inView ? "visible" : ""} delay-${i + 1}`}
+                style={{
+                  background: "linear-gradient(160deg, #13171f 0%, #0f1318 100%)",
+                  border: `1px solid ${CARD_BORDER}`,
+                  borderRadius: 22,
+                  padding: "36px 28px 32px",
+                  display: "flex", flexDirection: "column", alignItems: "center",
+                  textAlign: "center",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+                  transition: `opacity 0.7s ease ${i * 0.12}s, transform 0.7s ease ${i * 0.12}s`,
+                }}
+              >
+                {/* Number circle */}
+                <div style={{
+                  width: 72, height: 72, borderRadius: "50%",
+                  background: "rgba(180,185,195,0.12)",
+                  border: "1px solid rgba(180,185,195,0.3)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "1.6rem", fontWeight: 800, color: "rgba(200,205,215,0.9)",
+                  marginBottom: 24, fontFamily: "'Be Vietnam Pro', sans-serif",
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.2)",
+                }}>{i + 1}</div>
 
-            {/* Arrow button bottom-right — like image 1 */}
-            <div style={{
-              position: "absolute", bottom: -18, right: 24,
-              width: 52, height: 52, borderRadius: "50%",
-              background: LIME, color: LIME_TEXT,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "1.3rem", fontWeight: 700,
-              boxShadow: "0 8px 24px rgba(197,245,66,0.35)",
-              cursor: "pointer",
-            }}>↗</div>
+                {/* Title */}
+                <div style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--cream)", marginBottom: 20, lineHeight: 1.3 }}>{p.title}</div>
+
+                {/* Items */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%" }}>
+                  {p.items.map(item => (
+                    <div key={item} style={{ fontSize: "0.83rem", color: "var(--cream-dim)", lineHeight: 1.5 }}>{item}</div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -494,10 +488,15 @@ function SlideProblem() {
                 }}>
                   <div style={{ padding: "13px 20px", fontSize: "0.85rem", color: "var(--cream-dim)" }}>{row.label}</div>
                   <div style={{ padding: "13px 20px", textAlign: "center", borderLeft: `1px solid rgba(245,240,232,0.05)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, borderRadius: 6, background: "rgba(220,50,50,0.15)", fontSize: "0.85rem" }}>❌</span>
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                      <line x1="7" y1="7" x2="21" y2="21" stroke="#c8202a" strokeWidth="3.2" strokeLinecap="round"/>
+                      <line x1="21" y1="7" x2="7" y2="21" stroke="#c8202a" strokeWidth="3.2" strokeLinecap="round"/>
+                    </svg>
                   </div>
                   <div style={{ padding: "13px 20px", textAlign: "center", borderLeft: `1px solid rgba(245,240,232,0.05)`, background: "rgba(197,245,66,0.04)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, borderRadius: 6, background: "rgba(34,197,94,0.2)", fontSize: "0.85rem" }}>✅</span>
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                      <polyline points="4,15 11,22 24,7" stroke="#22c55e" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
                 </div>
               ))}
@@ -696,13 +695,6 @@ function Slide4() {
     { name: "TU Delft", country: "Hà Lan 🇳🇱", score: 79, rank: "Top 50 World", field: "Engineering", tuition: "$12,000", scholarship: "Holland Scholarship", badge: "Chi phí thấp" },
   ];
 
-  const roadmap = [
-    { icon: "📋", step: "Hoàn thiện hồ sơ", time: "Tháng 8–9" },
-    { icon: "🎓", step: "IELTS / SAT prep", time: "Tháng 9–11" },
-    { icon: "📝", step: "Nộp hồ sơ apply", time: "Tháng 11–12" },
-    { icon: "✅", step: "Nhận offer & học bổng", time: "Tháng 2–4" },
-    { icon: "✈️", step: "Visa & nhập học", time: "Tháng 6–8" },
-  ];
 
   return (
     <section id="results" ref={ref} style={{ minHeight: "100vh", position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflow: "hidden", background: "var(--ink)" }}>
@@ -757,26 +749,6 @@ function Slide4() {
           ))}
         </div>
 
-        {/* Roadmap strip */}
-        <div className={`reveal ${inView ? "visible" : ""} delay-5`} style={{ marginTop: 52 }}>
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <span style={{ fontSize: "0.72rem", color: "var(--gold)", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700 }}>Lộ trình tiếp theo</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-            {roadmap.map((r, i) => (
-              <div key={r.step} style={{ flex: 1, display: "flex", alignItems: "center" }}>
-                <div style={{ flex: 1, textAlign: "center", padding: "16px 8px", background: "rgba(255,255,255,0.03)", borderRadius: 12, border: "1px solid rgba(245,240,232,0.07)", margin: "0 4px" }}>
-                  <div style={{ fontSize: "1.3rem", marginBottom: 6 }}>{r.icon}</div>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--cream)", lineHeight: 1.3, marginBottom: 4 }}>{r.step}</div>
-                  <div style={{ fontSize: "0.65rem", color: "var(--gold)" }}>{r.time}</div>
-                </div>
-                {i < roadmap.length - 1 && (
-                  <div style={{ width: 20, flexShrink: 0, textAlign: "center", color: "rgba(245,240,232,0.2)", fontSize: "0.9rem" }}>→</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -956,19 +928,6 @@ function SlideTestimonials() {
           ))}
         </div>
 
-        {/* Social proof bar */}
-        <div className={`reveal ${inView ? "visible" : ""} delay-5`} style={{ marginTop: 60, display: "flex", justifyContent: "center", gap: 56, paddingTop: 40, borderTop: "1px solid rgba(245,240,232,0.08)" }}>
-          {[
-            { n: "2,400+", label: "Học sinh đã dùng" },
-            { n: "94%",    label: "Hài lòng sau tư vấn" },
-            { n: "87%",    label: "Trúng tuyển trường match" },
-          ].map(({ n, label }) => (
-            <div key={label} style={{ textAlign: "center" }}>
-              <div className="font-mono-dm" style={{ fontSize: "2rem", fontWeight: 800, color: "var(--gold)", lineHeight: 1 }}>{n}</div>
-              <div style={{ fontSize: "0.82rem", color: "var(--cream-dim)", marginTop: 6 }}>{label}</div>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
