@@ -1165,6 +1165,7 @@ function Slide5() {
   ]);
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
+  const isFirstRender = useRef(true);
 
   const quickPrompts = [
     "What IELTS score does UofT require?",
@@ -1183,6 +1184,7 @@ function Slide5() {
   };
 
   useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
