@@ -526,20 +526,20 @@ function Slide1() {
             AI that personalizes your student's profile —<br />
             not generic advice like GPT.
           </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 28, marginTop: 36, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 24, marginTop: 36 }}>
             {/* Buttons */}
-            <div className={`hero-cta reveal ${inView ? "visible" : ""} delay-3`} style={{ display: "flex", gap: 14 }}>
+            <div className={`hero-cta reveal ${inView ? "visible" : ""} delay-3`} style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
               <button className="btn-primary" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>Get Started →</button>
               <button className="btn-ghost" onClick={() => document.getElementById("engine")?.scrollIntoView({ behavior: "smooth" })}>View Demo</button>
             </div>
 
             {/* QR code */}
-            <div className={`reveal ${inView ? "visible" : ""} delay-4`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(245,240,232,0.35)", fontFamily: "'Be Vietnam Pro', sans-serif", fontWeight: 600 }}>Scan Me</span>
+            <div className={`reveal ${inView ? "visible" : ""} delay-4`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flexShrink: 0 }}>
+              <span style={{ fontSize: "0.62rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(245,240,232,0.4)", fontFamily: "'Be Vietnam Pro', sans-serif", fontWeight: 700 }}>Scan Me</span>
               <img
                 src="/qr.png"
-                alt="QR – studymapper.etest.edu.vn"
-                style={{ width: 72, height: 72, borderRadius: 8, display: "block", objectFit: "cover" }}
+                alt="QR – mindee.rotexai.com"
+                style={{ width: 110, height: 110, borderRadius: 10, display: "block", objectFit: "cover" }}
               />
             </div>
           </div>
