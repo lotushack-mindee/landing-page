@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense, lazy } from "react";
+const Globe = lazy(() => import("react-globe.gl"));
 
 // ── Scroll animation hook ──────────────────────────────────────────────────
 function useInView(threshold = 0.15) {
@@ -17,10 +18,10 @@ function useInView(threshold = 0.15) {
 
 // ── Nav ────────────────────────────────────────────────────────────────────
 const NAV_LINKS = [
-  { label: "Giới thiệu", id: "hero" },
-  { label: "Tính năng",  id: "engine" },
-  { label: "Kết quả",   id: "results" },
-  { label: "Tư vấn",    id: "contact" },
+  { label: "About",    id: "hero" },
+  { label: "Features", id: "engine" },
+  { label: "Results",  id: "results" },
+  { label: "Consult",  id: "contact" },
 ];
 
 function Nav() {
@@ -56,7 +57,7 @@ function Nav() {
           <span
             key={id}
             onClick={() => scrollTo(id)}
-            style={{ color: "var(--cream-dim)", fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Be Vietnam Pro', sans-serif", transition: "color 0.2s" }}
+            style={{ color: "var(--cream-dim)", fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Be Vietnam Pro', sans-serif", transition: "color 0.2s", whiteSpace: "nowrap" }}
             onMouseEnter={e => e.target.style.color = "var(--cream)"}
             onMouseLeave={e => e.target.style.color = "var(--cream-dim)"}
           >{label}</span>
@@ -65,8 +66,8 @@ function Nav() {
       <button
         className="btn-primary"
         onClick={() => scrollTo("contact")}
-        style={{ padding: "8px 20px", fontSize: "0.82rem" }}
-      >Đăng ký miễn phí →</button>
+        style={{ padding: "8px 20px", fontSize: "0.82rem", whiteSpace: "nowrap" }}
+      >Get Started Free →</button>
     </nav>
   );
 }
@@ -259,109 +260,150 @@ function FloatCard({ style, children, depth = 1, mouse, title }) {
   );
 }
 
-// ── Laptop Mockup ───────────────────────────────────────────────────────────
+// ── react-globe.gl 3D Earth ───────────────────────────────────────────────────
+const GLOBE_MARKERS = [
+  { lat: 21.03,  lng: 105.85, label: "Hanoi" },
+  { lat: 10.82,  lng: 106.63, label: "Ho Chi Minh" },
+  { lat: 37.77,  lng: -122.4, label: "San Francisco" },
+  { lat: 51.5,   lng: -0.12,  label: "London" },
+  { lat: -33.87, lng: 151.2,  label: "Sydney" },
+  { lat: 1.35,   lng: 103.8,  label: "Singapore" },
+  { lat: 43.65,  lng: -79.38, label: "Toronto" },
+  { lat: 35.68,  lng: 139.69, label: "Tokyo" },
+];
+
 function LaptopMockup({ scrollY, mouse, inView }) {
-  const tiltX = mouse.y * -6;
-  const tiltY = mouse.x * 8;
-  const lift  = scrollY * -0.45;
+  const globeRef   = useRef(null);
+  const wrapperRef = useRef(null);
+  const [hovered, setHovered] = useState(false);
+  const SIZE = 560;
+  const parallaxY = scrollY * -0.28;
+
+  // Setup controls once globe is ready
+  useEffect(() => {
+    if (!globeRef.current) return;
+    const ctrl = globeRef.current.controls();
+    ctrl.autoRotate      = true;
+    ctrl.autoRotateSpeed = 0.8;
+    ctrl.enableZoom      = false;
+    ctrl.enablePan       = false;
+  }, []);
+
+  // Hover: slow/pause auto-rotate, speed up on leave
+  useEffect(() => {
+    if (!globeRef.current) return;
+    const ctrl = globeRef.current.controls();
+    ctrl.autoRotateSpeed = hovered ? 0 : 0.8;
+  }, [hovered]);
+
+  // Mouse-move over globe → tilt + track longitude
+  const handleMouseMove = (e) => {
+    if (!globeRef.current || !wrapperRef.current) return;
+    const rect = wrapperRef.current.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width  - 0.5;  // -0.5 → 0.5
+    const ny = (e.clientY - rect.top)  / rect.height - 0.5;
+    const pov = globeRef.current.pointOfView();
+    globeRef.current.pointOfView(
+      { lat: ny * -30, lng: pov.lng + nx * 2, altitude: pov.altitude },
+      80
+    );
+  };
+
+  // Wheel → spin the globe
+  const handleWheel = (e) => {
+    e.preventDefault();
+    if (!globeRef.current) return;
+    const pov = globeRef.current.pointOfView();
+    const delta = e.deltaY * 0.12;
+    globeRef.current.pointOfView({ ...pov, lng: pov.lng + delta }, 0);
+  };
 
   return (
-    <div className={`reveal-right ${inView ? "visible" : ""} delay-2`} style={{
-      perspective: 1400,
-      transform: `translateY(${lift}px)`,
-      transition: "transform 0.12s ease-out, opacity 0.9s ease",
-      willChange: "transform",
-      flexShrink: 0,
-    }}>
+    <div
+      ref={wrapperRef}
+      className={`reveal-right ${inView ? "visible" : ""} delay-2`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onMouseMove={handleMouseMove}
+      onWheel={handleWheel}
+      style={{
+        position: "relative", flexShrink: 0,
+        width: SIZE, height: SIZE,
+        transform: `translateY(${parallaxY}px) scale(${hovered ? 1.045 : 1})`,
+        transition: "transform 0.38s cubic-bezier(0.34,1.56,0.64,1), opacity 0.9s ease",
+        willChange: "transform",
+        cursor: hovered ? "grab" : "default",
+      }}
+    >
+      {/* Red outer halo — intensifies on hover */}
       <div style={{
-        transform: `rotateX(${tiltX - 4}deg) rotateY(${tiltY}deg)`,
-        transition: "transform 0.18s ease-out",
-        transformStyle: "preserve-3d",
-      }}>
-        {/* ── Screen lid ── */}
-        <div style={{
-          width: 620, height: 390,
-          background: "#0a0d12",
-          borderRadius: "14px 14px 0 0",
-          border: "2.5px solid #2a2d35",
-          borderBottom: "none",
-          overflow: "hidden",
-          boxShadow: "0 0 0 1px #1a1d24, 0 -4px 30px rgba(0,0,0,0.5), 0 0 80px rgba(200,32,42,0.25), 0 0 160px rgba(20,80,200,0.15)",
-          position: "relative",
-        }}>
-          {/* Screen bezel top (camera dot) */}
-          <div style={{ height: 20, background: "#0a0d12", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#1e2228", boxShadow: "0 0 0 1px #2a2d35" }}/>
-          </div>
-          {/* ── Mini StudyMapper UI inside screen ── */}
-          <div style={{ background: "#ffffff", height: "calc(100% - 20px)", overflow: "hidden", borderRadius: "0 0 2px 2px" }}>
-            {/* Mini nav */}
-            <div style={{ background: "#0c0f13", padding: "8px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ color: "#f5f0e8", fontSize: "0.7rem", fontWeight: 700, fontFamily: "'Be Vietnam Pro',sans-serif" }}>
-                Study<span style={{ color: "#c8202a" }}>Mapper</span>
-              </span>
-              <div style={{ display: "flex", gap: 12 }}>
-                {["Tính năng","Kết quả","Tư vấn"].map(t => (
-                  <span key={t} style={{ color: "rgba(245,240,232,0.5)", fontSize: "0.52rem", fontFamily: "'Be Vietnam Pro',sans-serif" }}>{t}</span>
-                ))}
-              </div>
-              <div style={{ background: "#c8202a", borderRadius: 4, padding: "3px 8px", fontSize: "0.5rem", color: "#fff", fontWeight: 700 }}>Đăng ký →</div>
-            </div>
-            {/* Content area */}
-            <div style={{ padding: "14px 20px", background: "#f8f6f2" }}>
-              {/* Header */}
-              <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: "0.55rem", color: "#c8202a", fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'Be Vietnam Pro',sans-serif" }}>AI MATCH SCORE</div>
-                <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#0c0f13", fontFamily: "'Be Vietnam Pro',sans-serif", lineHeight: 1.2, marginTop: 2 }}>
-                  Trường <span style={{ color: "#e8a020", fontStyle: "italic" }}>đúng</span> cho con bạn.
-                </div>
-              </div>
-              {/* Profile mini form */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, marginBottom: 10 }}>
-                {[["GPA","3.8 / 4.0"],["IELTS","7.0"],["Ngân sách","$25,000/năm"],["Quốc gia","Canada, Úc"]].map(([l,v]) => (
-                  <div key={l} style={{ background: "#fff", borderRadius: 6, padding: "4px 8px", border: "1px solid #e8e4dc" }}>
-                    <div style={{ fontSize: "0.45rem", color: "#888", fontFamily: "'Be Vietnam Pro',sans-serif" }}>{l}</div>
-                    <div style={{ fontSize: "0.6rem", fontWeight: 700, color: "#0c0f13", fontFamily: "'Be Vietnam Pro',sans-serif" }}>{v}</div>
-                  </div>
-                ))}
-              </div>
-              {/* Match results */}
-              <div style={{ fontSize: "0.5rem", fontWeight: 700, color: "#555", letterSpacing: "0.08em", marginBottom: 6, fontFamily: "'Be Vietnam Pro',sans-serif" }}>TOP KẾT QUẢ PHÙ HỢP</div>
-              {[
-                { name: "Univ. of Toronto", country: "🇨🇦 Canada", score: 94, color: "#22c55e" },
-                { name: "Univ. of Melbourne", country: "🇦🇺 Úc", score: 91, color: "#3b82f6" },
-                { name: "NUS Singapore", country: "🇸🇬 Singapore", score: 88, color: "#e8a020" },
-              ].map(u => (
-                <div key={u.name} style={{ background: "#fff", borderRadius: 8, padding: "7px 10px", marginBottom: 5, border: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-                  <div>
-                    <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "#0c0f13", fontFamily: "'Be Vietnam Pro',sans-serif" }}>{u.name}</div>
-                    <div style={{ fontSize: "0.48rem", color: "#888", marginTop: 1 }}>{u.country} · #1 QS Ranking</div>
-                  </div>
-                  <div style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${u.color}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <span style={{ fontSize: "0.62rem", fontWeight: 800, color: u.color }}>{u.score}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        position: "absolute", inset: -70, borderRadius: "50%",
+        background: `radial-gradient(circle, rgba(200,32,42,${hovered ? 0.72 : 0.5}) 0%, rgba(200,32,42,${hovered ? 0.28 : 0.18}) 50%, transparent 72%)`,
+        filter: `blur(${hovered ? 40 : 48}px)`,
+        transition: "all 0.4s ease",
+        pointerEvents: "none", zIndex: 0,
+      }}/>
+      {/* Gold accent */}
+      <div style={{
+        position: "absolute", top: -30, right: -30, width: 180, height: 180,
+        background: `radial-gradient(circle, rgba(232,160,32,${hovered ? 0.6 : 0.38}) 0%, transparent 70%)`,
+        filter: "blur(32px)", transition: "all 0.4s ease",
+        pointerEvents: "none", zIndex: 0,
+      }}/>
+      {/* Atmosphere glow ring — pulses on hover */}
+      <div style={{
+        position: "absolute", inset: -10, borderRadius: "50%",
+        boxShadow: hovered
+          ? "0 0 90px rgba(100,160,255,0.55), 0 0 160px rgba(200,32,42,0.4), 0 0 30px rgba(255,255,255,0.08)"
+          : "0 0 60px rgba(100,160,255,0.35), 0 0 120px rgba(200,32,42,0.25)",
+        transition: "box-shadow 0.4s ease",
+        pointerEvents: "none", zIndex: 2,
+      }}/>
 
-        {/* ── Hinge ── */}
-        <div style={{ height: 4, background: "linear-gradient(180deg,#1e2228,#141720)", width: "100%" }}/>
-
-        {/* ── Base / keyboard ── */}
-        <div style={{
-          width: "100%", height: 22,
-          background: "linear-gradient(180deg,#1e2228 0%,#141720 100%)",
-          borderRadius: "0 0 10px 10px",
-          boxShadow: "0 16px 60px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <div style={{ width: 80, height: 8, background: "#0d1018", borderRadius: 3, border: "1px solid #2a2d35" }}/>
-        </div>
-        {/* Table shadow */}
-        <div style={{ height: 10, background: "radial-gradient(ellipse 80% 100% at 50% 0%, rgba(0,0,0,0.55) 0%, transparent 100%)", marginTop: 2 }}/>
+      {/* Globe — clipped to circle */}
+      <div style={{ position: "relative", zIndex: 1, borderRadius: "50%", overflow: "hidden", width: SIZE, height: SIZE }}>
+        <Suspense fallback={<div style={{ width: SIZE, height: SIZE, borderRadius: "50%", background: "#0d3d6e" }}/>}>
+          <Globe
+            ref={globeRef}
+            width={SIZE}
+            height={SIZE}
+            backgroundColor="rgba(0,0,0,0)"
+            globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+            bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+            atmosphereColor="rgba(100,160,255,0.6)"
+            atmosphereAltitude={0.18}
+            pointsData={GLOBE_MARKERS}
+            pointLat="lat"
+            pointLng="lng"
+            pointLabel="label"
+            pointColor={() => "#c8202a"}
+            pointAltitude={0.01}
+            pointRadius={0.45}
+            pointsMerge={false}
+          />
+        </Suspense>
       </div>
+
+      {/* Orbiting dots */}
+      {[
+        { angle: 48,  r: SIZE/2+22, size: 5, color: "#e8a020" },
+        { angle: 148, r: SIZE/2+18, size: 4, color: "#c8202a" },
+        { angle: 248, r: SIZE/2+20, size: 4, color: "#60a5fa" },
+        { angle: 338, r: SIZE/2+16, size: 3, color: "#e8a020" },
+      ].map((d, i) => {
+        const rad = d.angle * Math.PI / 180;
+        return (
+          <div key={i} style={{
+            position: "absolute",
+            left: SIZE/2 + Math.cos(rad)*d.r - d.size/2,
+            top:  SIZE/2 + Math.sin(rad)*d.r - d.size/2,
+            width: d.size, height: d.size, borderRadius: "50%",
+            background: d.color, boxShadow: `0 0 ${d.size*4}px ${d.color}`,
+            animation: `float ${3.2 + i*0.55}s ease-in-out ${i*0.7}s infinite`,
+            pointerEvents: "none", zIndex: 3,
+          }}/>
+        );
+      })}
     </div>
   );
 }
@@ -423,63 +465,97 @@ function Slide1() {
       {/* Subtle grid */}
       <div style={{ position: "absolute", inset: 0, opacity: 0.025, backgroundImage: "linear-gradient(rgba(255,255,255,0.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.8) 1px,transparent 1px)", backgroundSize: "80px 80px", pointerEvents: "none", zIndex: 0 }}/>
 
+      {/* ── Floating books — parallax scroll decoration ── */}
+      {[
+        // [left%, top%, size, color, speed, rot, mouseX, mouseY, delay]
+        { left: "6%",   top: "18%", size: 52, color: "#e8a020", speed: 0.22, rot: -18, mx: 0.04, my: 0.03, delay: "0s"   },
+        { left: "14%",  top: "62%", size: 38, color: "#c8202a", speed: 0.40, rot:  12, mx: 0.06, my: 0.05, delay: "0.3s" },
+        { left: "82%",  top: "70%", size: 44, color: "#e8a020", speed: 0.18, rot: -8,  mx: 0.03, my: 0.04, delay: "0.5s" },
+        { left: "90%",  top: "25%", size: 34, color: "#c8202a", speed: 0.35, rot:  22, mx: 0.05, my: 0.02, delay: "0.8s" },
+        { left: "48%",  top: "82%", size: 42, color: "#f5f0e8", speed: 0.28, rot: -5,  mx: 0.02, my: 0.06, delay: "0.6s" },
+        { left: "55%",  top: "8%",  size: 30, color: "#e8a020", speed: 0.50, rot:  15, mx: 0.07, my: 0.03, delay: "1s"   },
+      ].map((b, i) => {
+        const tx = mouse.x * b.mx * 120;
+        const ty = mouse.y * b.my * 120 - scrollY * b.speed;
+        return (
+          <div key={i} style={{
+            position: "absolute", left: b.left, top: b.top,
+            transform: `translate(${tx}px, ${ty}px) rotate(${b.rot}deg)`,
+            transition: "transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)",
+            pointerEvents: "none", zIndex: 1,
+            animation: `float ${4 + i * 0.6}s ease-in-out ${b.delay} infinite`,
+            opacity: 0.75,
+            filter: `drop-shadow(0 6px 18px ${b.color}55)`,
+          }}>
+            <svg width={b.size} height={b.size * 0.85} viewBox="0 0 60 52" fill="none">
+              {/* Book spine */}
+              <rect x="28" y="4" width="4" height="44" rx="1" fill={b.color} opacity="0.9"/>
+              {/* Left cover */}
+              <path d="M30 6 L4 10 L4 46 L30 44 Z" fill={b.color} opacity="0.6"/>
+              {/* Right cover */}
+              <path d="M30 6 L56 10 L56 46 L30 44 Z" fill={b.color} opacity="0.85"/>
+              {/* Left pages lines */}
+              <line x1="10" y1="18" x2="27" y2="17" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="10" y1="24" x2="27" y2="23" stroke="rgba(255,255,255,0.25)" strokeWidth="1.2" strokeLinecap="round"/>
+              <line x1="10" y1="30" x2="27" y2="29" stroke="rgba(255,255,255,0.2)"  strokeWidth="1"   strokeLinecap="round"/>
+              {/* Right pages lines */}
+              <line x1="33" y1="17" x2="50" y2="18" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="33" y1="23" x2="50" y2="24" stroke="rgba(255,255,255,0.25)" strokeWidth="1.2" strokeLinecap="round"/>
+              <line x1="33" y1="29" x2="50" y2="30" stroke="rgba(255,255,255,0.2)"  strokeWidth="1"   strokeLinecap="round"/>
+              {/* Glow rim */}
+              <path d="M30 6 L4 10 L4 46 L30 44 L56 46 L56 10 Z" stroke={b.color} strokeWidth="0.8" fill="none" opacity="0.5"/>
+            </svg>
+          </div>
+        );
+      })}
+
       {/* ── Hero row ── */}
-      <div style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 40, padding: "100px 60px 60px", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+      <div style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 0, padding: "100px 60px 60px", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
 
         {/* LEFT — text */}
-        <div style={{ flex: "0 0 auto", maxWidth: 460 }}>
+        <div style={{ flex: "0 0 auto", maxWidth: 460, position: "relative", zIndex: 5 }}>
           <div className={`reveal ${inView ? "visible" : ""}`}>
-            <span className="eyebrow">StudyMapper × ETEST — AI Du học</span>
+            <span className="eyebrow">StudyMapper × ETEST — AI Study Abroad</span>
           </div>
           <h1 className={`font-display reveal ${inView ? "visible" : ""} delay-1`} style={{ fontSize: "clamp(2.6rem, 4.2vw, 4rem)", fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.03em", marginTop: 20, color: "var(--cream)" }}>
-            Tìm trường{" "}
-            <span style={{ color: "var(--gold)", fontStyle: "italic", textShadow: "0 0 40px rgba(232,160,32,0.5)" }}>đúng</span>
-            <br />cho con bạn.
+            Find the{" "}
+            <span style={{ color: "var(--gold)", fontStyle: "italic", textShadow: "0 0 40px rgba(232,160,32,0.5)" }}>right</span>
+            <br />school for your child.
           </h1>
           <p className={`reveal ${inView ? "visible" : ""} delay-2`} style={{ marginTop: 24, fontSize: "1rem", lineHeight: 1.8, color: "var(--cream-dim)" }}>
-            AI matching cá nhân hoá profile học sinh —<br />
-            không phải lời khuyên chung chung như GPT.
+            AI that personalizes your student's profile —<br />
+            not generic advice like GPT.
           </p>
           <div className={`reveal ${inView ? "visible" : ""} delay-3`} style={{ display: "flex", gap: 14, marginTop: 36 }}>
-            <button className="btn-primary" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>Bắt đầu ngay →</button>
-            <button className="btn-ghost" onClick={() => document.getElementById("engine")?.scrollIntoView({ behavior: "smooth" })}>Xem demo</button>
-          </div>
-          {/* Trust badges */}
-          <div className={`reveal ${inView ? "visible" : ""} delay-4`} style={{ display: "flex", gap: 20, marginTop: 40, alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 8px rgba(34,197,94,0.8)" }}/>
-              <span style={{ fontSize: "0.75rem", color: "rgba(245,240,232,0.6)", fontFamily: "'Be Vietnam Pro',sans-serif" }}>2,400+ học sinh</span>
-            </div>
-            <div style={{ width: 1, height: 16, background: "rgba(245,240,232,0.15)" }}/>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8a020", boxShadow: "0 0 8px rgba(232,160,32,0.8)" }}/>
-              <span style={{ fontSize: "0.75rem", color: "rgba(245,240,232,0.6)", fontFamily: "'Be Vietnam Pro',sans-serif" }}>94% đậu nguyện vọng 1</span>
-            </div>
+            <button className="btn-primary" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>Get Started →</button>
+            <button className="btn-ghost" onClick={() => document.getElementById("engine")?.scrollIntoView({ behavior: "smooth" })}>View Demo</button>
           </div>
         </div>
 
-        {/* RIGHT — Laptop */}
-        <LaptopMockup scrollY={scrollY} mouse={mouse} inView={inView} />
+        {/* RIGHT — Earth Globe */}
+        <div style={{ position: "absolute", right: -20, top: "50%", transform: "translateY(-52%)", zIndex: 3 }}>
+          <LaptopMockup scrollY={scrollY} mouse={mouse} inView={inView} />
+        </div>
       </div>
 
       {/* ── Full-bleed cream stats bar ── */}
       <div className={`reveal ${inView ? "visible" : ""} delay-5`} style={{ width: "100%", background: "var(--cream)", position: "relative", zIndex: 6 }}>
-        <div style={{ background: "rgba(0,0,0,0.06)", overflow: "hidden", padding: "10px 0", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+        <div style={{ background: "var(--red)", overflow: "hidden", padding: "10px 0" }}>
           <div style={{ display: "flex", whiteSpace: "nowrap", animation: "ticker 28s linear infinite" }}>
             {[1,2].map(k => (
-              <span key={k} style={{ display: "inline-block", paddingRight: 80, fontSize: "0.8rem", fontWeight: 600, color: "rgba(12,15,19,0.65)", letterSpacing: "0.03em" }}>
-                Tự hào học sinh ETEST vinh danh vào các trường đại học hàng đầu như MIT · Caltech · UC Berkeley · UCLA · Cornell · NYU · Boston University · King's College London · University of Edinburgh · RMIT · Monash ·&nbsp;
+              <span key={k} style={{ display: "inline-block", paddingRight: 80, fontSize: "0.8rem", fontWeight: 600, color: "#ffffff", letterSpacing: "0.03em" }}>
+                ETEST students have been admitted to top universities including MIT · Caltech · UC Berkeley · UCLA · Cornell · NYU · Boston University · King's College London · University of Edinburgh · RMIT · Monash ·&nbsp;
               </span>
             ))}
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", maxWidth: 1100, margin: "0 auto", padding: "0 48px" }}>
           {[
-            { n: "5,000+", label: "TRƯỜNG ĐẠI HỌC", desc: "Dữ liệu tuyển sinh cập nhật từng mùa thi" },
-            { n: "30+",    label: "QUỐC GIA",        desc: "Phủ sóng các điểm đến du học hàng đầu thế giới" },
-            { n: "98%",    label: "ĐỘ CHÍNH XÁC AI", desc: "Tỉ lệ gợi ý phù hợp với profile học sinh thực tế" },
+            { n: "5,000+", label: "UNIVERSITIES",  desc: "Updated every admission season" },
+            { n: "30+",    label: "COUNTRIES",     desc: "Top study destinations worldwide" },
+            { n: "98%",    label: "AI ACCURACY",   desc: "Matched to real student profiles" },
           ].map(({ n, label, desc }, i) => (
-            <div key={label} style={{ padding: "44px 40px", borderLeft: i > 0 ? "1px solid rgba(12,15,19,0.12)" : "none", textAlign: "center" }}>
+            <div key={label} style={{ padding: "44px 40px", borderLeft: i > 0 ? "1px solid rgba(200,32,42,0.15)" : "none", textAlign: "center" }}>
               <div className="font-mono-dm" style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 800, color: "var(--ink)", lineHeight: 1, letterSpacing: "-0.02em" }}>{n}</div>
               <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.14em", marginTop: 12, marginBottom: 10 }}>{label}</div>
               <div style={{ fontSize: "0.82rem", color: "rgba(12,15,19,0.55)", lineHeight: 1.6 }}>{desc}</div>
@@ -500,19 +576,13 @@ function Slide1() {
 function SlideProblem() {
   const [ref, inView] = useInView(0.1);
 
-  const pains = [
-    { badge: "Vấn đề 1", title: "Quá tải thông tin", desc: "Hàng nghìn trường, hàng trăm chương trình — gia đình không biết bắt đầu từ đâu và dễ bị agencies không uy tín dẫn dắt sai hướng." },
-    { badge: "Vấn đề 2", title: "AI hiện tại quá chung chung", desc: "GPT hay ChatGPT cho lời khuyên generic — không biết con bạn học lớp mấy, GPA bao nhiêu, ngân sách thế nào, cần học bổng hay không." },
-    { badge: "Vấn đề 3", title: "Chi phí tư vấn truyền thống cao", desc: "Agencies thu phí tư vấn lên đến $3,000–$5,000 USD, tư vấn theo kiểu 'đại trà', không cá nhân hoá cho từng hồ sơ cụ thể." },
-  ];
-
   const compare = [
-    { label: "Cá nhân hoá theo profile" },
-    { label: "Hiểu ngân sách gia đình" },
-    { label: "Dữ liệu 5,000+ trường" },
-    { label: "Tỉ lệ đậu & học bổng thực" },
-    { label: "Tư vấn visa & lộ trình" },
-    { label: "Phân tích hồ sơ Việt Nam" },
+    { label: "Profile personalization" },
+    { label: "Understands family budget" },
+    { label: "Data from 5,000+ universities" },
+    { label: "Real acceptance & scholarship rates" },
+    { label: "Visa & roadmap advisory" },
+    { label: "Vietnamese student profile analysis" },
   ];
 
   const LIME = "#c5f542";
@@ -535,29 +605,29 @@ function SlideProblem() {
         <div style={{ marginBottom: 96 }}>
           {/* Centered header */}
           <div className={`reveal ${inView ? "visible" : ""}`} style={{ textAlign: "center", marginBottom: 56 }}>
-            <span className="eyebrow" style={{ marginBottom: 16, display: "block" }}>02 — Bài toán</span>
+            <span className="eyebrow" style={{ marginBottom: 16, display: "block" }}>02 — The Problem</span>
             <h2 className="font-display" style={{
               fontSize: "clamp(2.4rem, 4vw, 3.6rem)", fontWeight: 800,
               color: "var(--cream)", letterSpacing: "-0.02em", lineHeight: 1.1,
               marginBottom: 16,
             }}>
-              Tại sao gia đình Việt Nam<br />
-              <span style={{ color: "var(--red)" }}>đang gặp khó?</span>
+              Why are families<br />
+              <span style={{ color: "var(--red)" }}>struggling to choose?</span>
             </h2>
             <p style={{ color: "var(--cream-dim)", fontSize: "0.98rem", lineHeight: 1.7, maxWidth: 560, margin: "0 auto" }}>
-              Học sinh cấp 3 đứng trước hàng nghìn lựa chọn mà không có<br />công cụ cá nhân hoá nào hỗ trợ đúng nghĩa.
+              Thousands of schools. Zero personalized guidance. Until now.
             </p>
           </div>
 
           {/* 3 cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          <div className="problem-3col" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
             {[
-              { icon: "🌊", badge: "Vấn đề 1", title: "Quá tải thông tin",          items: ["Hàng nghìn trường, hàng trăm chương trình", "Không biết bắt đầu từ đâu", "Dễ bị agencies không uy tín dẫn dắt", "Thiếu công cụ so sánh đáng tin cậy"] },
-              { icon: "🤖", badge: "Vấn đề 2", title: "AI hiện tại quá chung chung", items: ["GPT không biết GPA của con bạn", "Không hiểu ngân sách gia đình", "Không có dữ liệu tuyển sinh thực", "Tư vấn theo kiểu 'one-size-fits-all'"] },
-              { icon: "💸", badge: "Vấn đề 3", title: "Chi phí tư vấn cao",          items: ["$3,000–$5,000 USD phí tư vấn", "Tư vấn đại trà, không cá nhân hoá", "Không cam kết kết quả cụ thể", "Khó tiếp cận với gia đình tỉnh lẻ"] },
+              { title: "Information Overload",  desc: "10,000+ programs, 30+ countries — no tool to compare them objectively." },
+              { title: "Generic AI Advice",     desc: "GPT ignores your child's GPA, budget, and visa odds. One size fits none." },
+              { title: "Consulting Costs $3–5K",desc: "$3,000–$5,000 per application, no outcome guarantee, unaffordable for most." },
             ].map((p, i) => (
               <div
-                key={p.badge}
+                key={p.title}
                 className={`reveal ${inView ? "visible" : ""} delay-${i + 1}`}
                 style={{
                   background: "linear-gradient(160deg, #13171f 0%, #0f1318 100%)",
@@ -582,14 +652,10 @@ function SlideProblem() {
                 }}>{i + 1}</div>
 
                 {/* Title */}
-                <div style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--cream)", marginBottom: 20, lineHeight: 1.3 }}>{p.title}</div>
+                <div style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--cream)", marginBottom: 14, lineHeight: 1.3 }}>{p.title}</div>
 
-                {/* Items */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%" }}>
-                  {p.items.map(item => (
-                    <div key={item} style={{ fontSize: "0.83rem", color: "var(--cream-dim)", lineHeight: 1.5 }}>{item}</div>
-                  ))}
-                </div>
+                {/* Single line desc */}
+                <div style={{ fontSize: "0.85rem", color: "var(--cream-dim)", lineHeight: 1.6 }}>{p.desc}</div>
               </div>
             ))}
           </div>
@@ -597,10 +663,11 @@ function SlideProblem() {
 
         {/* ═══ BLOCK 2 — So sánh ═══ */}
         <div className={`reveal ${inView ? "visible" : ""} delay-2`}
+          className="comparison-block-2col"
           style={{ display: "grid", gridTemplateColumns: "1fr 1.55fr", gap: 56, alignItems: "center" }}>
 
           {/* LEFT */}
-          <div>
+          <div style={{ minWidth: 0 }}>
             <h2 className="font-display" style={{
               fontSize: "clamp(2.2rem, 3.5vw, 3.2rem)", fontWeight: 800,
               color: "var(--cream)", letterSpacing: "-0.02em", lineHeight: 1.15,
@@ -610,19 +677,19 @@ function SlideProblem() {
               <span style={{ color: "var(--gold)" }}>vs GPT</span>
             </h2>
             <p style={{ color: "var(--cream-dim)", fontSize: "0.92rem", lineHeight: 1.7, marginBottom: 32, maxWidth: 320 }}>
-              Không phải mọi AI đều hiểu được profile học sinh Việt Nam — sự khác biệt nằm ở dữ liệu và cá nhân hoá.
+              GPT gives everyone the same answer. StudyMapper uses your GPA, budget, and goals — 5,000+ university dataset included.
             </p>
             <button
               className="btn-primary"
               onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
               style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "12px 24px", fontSize: "0.88rem" }}
             >
-              Bắt đầu miễn phí <span style={{ fontSize: "1rem" }}>↗</span>
+              Get Started Free <span style={{ fontSize: "1rem" }}>↗</span>
             </button>
           </div>
 
           {/* RIGHT — Comparison table card */}
-          <div className={`reveal ${inView ? "visible" : ""} delay-3`} style={{ position: "relative" }}>
+          <div className={`reveal ${inView ? "visible" : ""} delay-3`} style={{ position: "relative", minWidth: 0 }}>
             <div style={{
               background: CARD_BG, borderRadius: 22,
               border: `1px solid ${CARD_BORDER}`,
@@ -631,7 +698,7 @@ function SlideProblem() {
             }}>
               {/* Header */}
               <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr", background: "rgba(255,255,255,0.04)", borderBottom: `1px solid rgba(245,240,232,0.08)` }}>
-                <div style={{ padding: "14px 20px", fontSize: "0.7rem", fontWeight: 700, color: "var(--cream-dim)", letterSpacing: "0.1em", textTransform: "uppercase" }}>TÍNH NĂNG</div>
+                <div style={{ padding: "14px 20px", fontSize: "0.7rem", fontWeight: 700, color: "var(--cream-dim)", letterSpacing: "0.1em", textTransform: "uppercase" }}>FEATURE</div>
                 <div style={{ padding: "14px 20px", textAlign: "center", fontSize: "0.82rem", fontWeight: 700, color: "rgba(245,240,232,0.35)", borderLeft: `1px solid rgba(245,240,232,0.06)` }}>GPT / ChatGPT</div>
                 <div style={{ padding: "14px 20px", textAlign: "center", fontSize: "0.82rem", fontWeight: 700, color: "var(--gold)", borderLeft: `1px solid rgba(245,240,232,0.06)`, background: "rgba(197,245,66,0.05)" }}>StudyMapper</div>
               </div>
@@ -659,21 +726,11 @@ function SlideProblem() {
               {/* Bottom note */}
               <div style={{ padding: "18px 20px", background: "rgba(200,32,42,0.07)", borderTop: `1px solid rgba(200,32,42,0.2)` }}>
                 <p style={{ fontSize: "0.83rem", color: "var(--cream-dim)", lineHeight: 1.65, margin: 0 }}>
-                  <span style={{ color: "var(--red)", fontWeight: 700 }}>StudyMapper × ETEST</span> kết hợp dữ liệu từ 5,000+ trường với AI matching — đưa ra gợi ý <em>cụ thể</em> theo đúng profile từng học sinh Việt Nam.
+                  <span style={{ color: "var(--red)", fontWeight: 700 }}>StudyMapper × ETEST</span> — 5,000+ university database, real acceptance rates, personalized in seconds.
                 </p>
               </div>
             </div>
 
-            {/* Arrow button */}
-            <div style={{
-              position: "absolute", bottom: -18, right: 24,
-              width: 52, height: 52, borderRadius: "50%",
-              background: LIME, color: LIME_TEXT,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "1.3rem", fontWeight: 700,
-              boxShadow: "0 8px 24px rgba(197,245,66,0.35)",
-              cursor: "pointer",
-            }}>↗</div>
           </div>
         </div>
 
@@ -686,16 +743,16 @@ function SlideProblem() {
 function Slide2() {
   const [ref, inView] = useInView(0.1);
   const fields = [
-    { label: "Họ và tên", placeholder: "Nguyễn Văn An", type: "text", span: 1 },
-    { label: "Năm học hiện tại", type: "select", options: ["Lớp 10", "Lớp 11", "Lớp 12", "Đã tốt nghiệp"], span: 1 },
-    { label: "GPA / Điểm TB", placeholder: "8.5 / 10", type: "text", span: 1 },
-    { label: "Điểm IELTS / TOEFL", placeholder: "VD: IELTS 6.5 hoặc TOEFL 85", type: "text", span: 1 },
-    { label: "Ngành học mong muốn", type: "select", options: ["Computer Science", "Business & Finance", "Engineering", "Medicine & Health", "Arts & Design", "Law", "Education", "Social Sciences"], span: 1 },
-    { label: "Quốc gia mục tiêu", type: "select", options: ["Mỹ 🇺🇸", "Anh 🇬🇧", "Canada 🇨🇦", "Úc 🇦🇺", "Singapore 🇸🇬", "Nhật 🇯🇵", "Hà Lan 🇳🇱", "Đức 🇩🇪"], span: 1 },
-    { label: "Ngân sách / năm (USD)", placeholder: "Nhập số hoặc chọn dưới đây", type: "budget", span: 1 },
-    { label: "Nhu cầu học bổng", type: "select", options: ["Không cần học bổng", "Cần học bổng một phần (<50%)", "Cần học bổng lớn (50–80%)", "Cần full scholarship"], span: 1 },
-    { label: "Dự định nhập học", type: "select", options: ["2025", "2026", "2027", "Chưa xác định"], span: 1 },
-    { label: "Thành tích / Hoạt động ngoại khoá", placeholder: "VD: Giải Toán quốc gia, CLB robotics, tình nguyện...", type: "text", span: 2 },
+    { label: "Full Name", placeholder: "John Smith", type: "text", span: 1 },
+    { label: "Current Grade", type: "select", options: ["Grade 10", "Grade 11", "Grade 12", "Graduated"], span: 1 },
+    { label: "GPA / Average Score", placeholder: "8.5 / 10", type: "text", span: 1 },
+    { label: "IELTS / TOEFL Score", placeholder: "e.g. IELTS 6.5 or TOEFL 85", type: "text", span: 1 },
+    { label: "Desired Major", type: "select", options: ["Computer Science", "Business & Finance", "Engineering", "Medicine & Health", "Arts & Design", "Law", "Education", "Social Sciences"], span: 1 },
+    { label: "Target Country", type: "select", options: ["USA 🇺🇸", "UK 🇬🇧", "Canada 🇨🇦", "Australia 🇦🇺", "Singapore 🇸🇬", "Japan 🇯🇵", "Netherlands 🇳🇱", "Germany 🇩🇪"], span: 1 },
+    { label: "Budget / Year (USD)", type: "select", options: ["< $15,000", "$15,000 – $25,000", "$25,000 – $40,000", "$40,000+"], span: 1 },
+    { label: "Scholarship Need", type: "select", options: ["No scholarship needed", "Partial scholarship needed (<50%)", "Large scholarship needed (50–80%)", "Need full scholarship"], span: 1 },
+    { label: "Intended Enrollment", type: "select", options: ["2025", "2026", "2027", "Not yet decided"], span: 1 },
+    { label: "Achievements / Extracurriculars", placeholder: "e.g. National Math Award, Robotics Club, Volunteer work...", type: "text", span: 1 },
   ];
 
   return (
@@ -713,10 +770,10 @@ function Slide2() {
           <span className="eyebrow">03 — Profile</span>
           <div className="section-divider" style={{ margin: "12px 0 20px" }} />
           <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3.2rem)", fontWeight: 600, color: "var(--cream)", letterSpacing: "-0.02em", lineHeight: 1.15 }}>
-            Kể cho AI nghe về con bạn.
+            Tell the AI about your child.
           </h2>
           <p style={{ color: "var(--cream-dim)", marginTop: 12, fontSize: "1rem" }}>
-            Càng chi tiết — kết quả matching càng chính xác.
+            More detail — more accurate matching results.
           </p>
         </div>
 
@@ -727,7 +784,7 @@ function Slide2() {
               <label style={{ display: "block", marginBottom: 8, fontSize: "0.78rem", letterSpacing: "0.08em", color: "var(--cream-dim)", textTransform: "uppercase" }}>{f.label}</label>
               {f.type === "select" ? (
                 <select className="field-input">
-                  <option value="">Chọn...</option>
+                  <option value="">Select...</option>
                   {f.options.map(o => <option key={o}>{o}</option>)}
                 </select>
               ) : f.type === "budget" ? (
@@ -751,7 +808,7 @@ function Slide2() {
 
         <div className={`reveal ${inView ? "visible" : ""} delay-5`} style={{ marginTop: 36 }}>
           <button className="btn-primary" style={{ width: "100%", fontSize: "1.05rem", padding: "16px" }}>
-            Phân tích với AI →
+            Analyze with AI →
           </button>
         </div>
       </div>
@@ -762,12 +819,11 @@ function Slide2() {
 // ── Slide 4 — AI Matching Engine ───────────────────────────────────────────
 function Slide3() {
   const [ref, inView] = useInView(0.1);
-  const [hovered, setHovered] = useState(null);
   const steps = [
-    { num: "01.", title: "Thu thập Profile", desc: "AI đọc GPA, IELTS, ngành học, ngân sách và quốc gia mục tiêu để hiểu đúng nhu cầu cụ thể của từng học sinh." },
-    { num: "02.", title: "Phân tích & Embedding", desc: "Profile được vector hoá và so khớp với dữ liệu từ 5,000+ trường đại học, cập nhật theo từng mùa tuyển sinh." },
-    { num: "03.", title: "Score & Rank", desc: "Mô hình ML chấm điểm tương thích và dự đoán xác suất đậu dựa trên 10,000+ hồ sơ học sinh Việt Nam thực tế." },
-    { num: "04.", title: "Gợi ý cá nhân hoá", desc: "Kết quả sắp xếp theo mức độ phù hợp — kèm học bổng khả dụng, tỉ lệ visa, yêu cầu IELTS và lộ trình cụ thể." },
+    { num: "01.", title: "Collect Profile", desc: "Input GPA, IELTS, major, budget, and target country — takes under 3 minutes." },
+    { num: "02.", title: "AI Matching", desc: "Profile matched against 5,000+ universities using real admissions data, updated each season." },
+    { num: "03.", title: "Score & Rank", desc: "Acceptance probability predicted from 10,000+ real student outcomes." },
+    { num: "04.", title: "Your Roadmap", desc: "Top schools ranked by fit — with scholarships, visa odds, and a clear action plan." },
   ];
 
   return (
@@ -787,16 +843,16 @@ function Slide3() {
             <span className={`eyebrow reveal-left ${inView ? "visible" : ""}`}>04 — Engine</span>
             <div className={`section-divider reveal-left ${inView ? "visible" : ""} delay-1`} style={{ margin: "14px 0 24px" }} />
             <h2 className={`font-display reveal-left ${inView ? "visible" : ""} delay-1`} style={{ fontSize: "clamp(1.9rem, 3vw, 2.8rem)", fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.02em", color: "var(--cream)" }}>
-              Từ profile<br />đến trường phù hợp,{" "}
-              <span style={{ color: "var(--gold)", fontStyle: "italic" }}>từng bước.</span>
+              From profile<br />to the right school,{" "}
+              <span style={{ color: "var(--gold)", fontStyle: "italic" }}>step by step.</span>
             </h2>
             <p className={`reveal-left ${inView ? "visible" : ""} delay-2`} style={{ color: "var(--cream-dim)", marginTop: 20, fontSize: "0.95rem", lineHeight: 1.75 }}>
-              Toàn bộ quá trình chạy tự động —<br />kết quả trong vài giây.
+              Fully automated process —<br />results in seconds.
             </p>
 
             {/* Mini stat */}
             <div className={`reveal-left ${inView ? "visible" : ""} delay-3`} style={{ marginTop: 32, display: "flex", gap: 24 }}>
-              {[["10K+","hồ sơ học"],["5K+","trường"],["3s","kết quả"]].map(([n,l]) => (
+              {[["10K+","student profiles"],["5K+","universities"],["3s","results"]].map(([n,l]) => (
                 <div key={n}>
                   <div className="font-mono-dm" style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--gold)" }}>{n}</div>
                   <div style={{ fontSize: "0.72rem", color: "var(--cream-dim)", marginTop: 2 }}>{l}</div>
@@ -805,53 +861,64 @@ function Slide3() {
             </div>
           </div>
 
-          {/* RIGHT — steps with process line */}
+          {/* RIGHT — steps with vertical timeline */}
           <div style={{ position: "relative" }}>
-            {/* Vertical connector line 01→04 */}
+            {/* Gradient vertical line */}
             <div style={{
               position: "absolute",
-              left: 29, top: 30, bottom: 30,
-              width: 1.5,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.15) 100%)",
+              left: 23, top: 48, bottom: 24,
+              width: 2, borderRadius: 2,
+              background: "linear-gradient(180deg, rgba(245,240,232,0.12) 0%, rgba(200,32,42,0.5) 55%, var(--red) 100%)",
               zIndex: 0,
             }}/>
 
             {steps.map((step, i) => {
-              const isHovered = hovered === i;
-              const isFirst = i === 0;
+              const isLast = i === steps.length - 1;
+              const progress = i / (steps.length - 1); // 0 → 1
+              const circleColor = isLast
+                ? "linear-gradient(135deg, #c8202a 0%, #e83040 100%)"
+                : "#ffffff";
+              const textColor = isLast ? "#fff" : "#0c0f13";
+              const glow = isLast
+                ? "0 0 0 4px rgba(200,32,42,0.25), 0 0 24px rgba(200,32,42,0.5)"
+                : "0 4px 16px rgba(0,0,0,0.35)";
+
               return (
                 <div key={step.num}
                   className={`reveal ${inView ? "visible" : ""} delay-${i + 1}`}
-                  onMouseEnter={() => setHovered(i)}
-                  onMouseLeave={() => setHovered(null)}
                   style={{
-                    display: "grid", gridTemplateColumns: "60px 1fr", gap: "0 20px",
-                    alignItems: "start", padding: "18px 20px 18px 0", marginBottom: 8,
-                    borderRadius: 12,
-                    border: isHovered ? "1px solid rgba(200,32,42,0.7)" : "1px solid transparent",
-                    background: "transparent",
-                    boxShadow: isHovered ? "0 0 20px rgba(200,32,42,0.12)" : "none",
-                    cursor: "default",
                     position: "relative", zIndex: 1,
-                    transition: `opacity 0.7s ease ${i * 0.12}s, transform 0.7s ease ${i * 0.12}s, border 0.25s ease, box-shadow 0.25s ease`,
+                    display: "flex", alignItems: "flex-start", gap: 28,
+                    paddingBottom: isLast ? 0 : 60,
+                    transition: `opacity 0.7s ease ${i * 0.15}s, transform 0.7s ease ${i * 0.15}s`,
                   }}
                 >
-                  {/* Number column with dot on the line */}
-                  <div style={{ position: "relative", display: "flex", alignItems: "flex-start", justifyContent: "flex-end", paddingRight: 14, paddingTop: 6 }}>
-                    {/* Dot on the line */}
+                  {/* Circle */}
+                  <div style={{
+                    width: 48, height: 48, borderRadius: "50%", flexShrink: 0,
+                    background: circleColor,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "'Be Vietnam Pro', sans-serif",
+                    fontWeight: 800, fontSize: "1rem", color: textColor,
+                    boxShadow: glow,
+                    position: "relative", zIndex: 2,
+                  }}>{i + 1}</div>
+
+                  {/* Content */}
+                  <div style={{ paddingTop: 8 }}>
                     <div style={{
-                      position: "absolute", right: 6, top: 8,
-                      width: isFirst ? 16 : 12, height: isFirst ? 16 : 12,
-                      borderRadius: "50%",
-                      background: isFirst ? "var(--red)" : "rgba(255,255,255,0.85)",
-                      boxShadow: isFirst ? "0 0 14px rgba(200,32,42,0.7)" : "0 0 6px rgba(255,255,255,0.3)",
-                      zIndex: 2,
-                    }}/>
-                    <div style={{ fontWeight: 700, fontSize: "1.9rem", color: isFirst ? "var(--red)" : "rgba(245,240,232,0.55)", letterSpacing: "-0.02em", lineHeight: 1 }}>{step.num}</div>
-                  </div>
-                  <div style={{ paddingTop: 4 }}>
-                    <div style={{ fontWeight: 600, fontSize: "1.05rem", color: "var(--cream)", marginBottom: 10, lineHeight: 1.3 }}>{step.title}</div>
-                    <div style={{ fontSize: "0.875rem", color: "var(--cream-dim)", lineHeight: 1.7 }}>{step.desc}</div>
+                      fontSize: "0.68rem", fontWeight: 700,
+                      color: "var(--red)", letterSpacing: "0.2em",
+                      textTransform: "uppercase", marginBottom: 10,
+                      fontFamily: "'Be Vietnam Pro', sans-serif",
+                    }}>STEP {String(i + 1).padStart(2, "0")}</div>
+                    <div style={{
+                      fontWeight: 700, fontSize: "1.15rem",
+                      color: "var(--cream)", marginBottom: 12, lineHeight: 1.3,
+                    }}>{step.title}</div>
+                    <div style={{
+                      fontSize: "0.875rem", color: "var(--cream-dim)", lineHeight: 1.78, maxWidth: 380,
+                    }}>{step.desc}</div>
                   </div>
                 </div>
               );
@@ -867,10 +934,11 @@ function Slide3() {
 function Slide4() {
   const [ref, inView] = useInView(0.1);
   const unis = [
-    { name: "University of Toronto", country: "Canada 🇨🇦", score: 94, rank: "#1 Canada", field: "Computer Science", tuition: "$28,000", scholarship: "Merit $12,000/năm", badge: "Best Match" },
-    { name: "University of Melbourne", country: "Úc 🇦🇺", score: 88, rank: "#1 Australia", field: "Business", tuition: "$24,500", scholarship: "Merit award $8,000", badge: "Phù hợp ngân sách" },
-    { name: "NUS Singapore", country: "Singapore 🇸🇬", score: 82, rank: "#8 Asia", field: "Engineering", tuition: "$19,800", scholarship: "ASEAN Scholarship", badge: "Visa dễ" },
-    { name: "TU Delft", country: "Hà Lan 🇳🇱", score: 79, rank: "Top 50 World", field: "Engineering", tuition: "$12,000", scholarship: "Holland Scholarship", badge: "Chi phí thấp" },
+    { name: "University of Toronto", country: "Canada 🇨🇦", score: 94, rank: "#1 Canada", field: "Computer Science", tuition: "$28,000", scholarship: "Merit $12,000/yr", badge: "Best Match" },
+    { name: "University of Melbourne", country: "Australia 🇦🇺", score: 88, rank: "#1 Australia", field: "Business", tuition: "$24,500", scholarship: "Merit award $8,000", badge: "Budget Fit" },
+    { name: "NUS Singapore", country: "Singapore 🇸🇬", score: 82, rank: "#8 Asia", field: "Engineering", tuition: "$19,800", scholarship: "ASEAN Scholarship", badge: "Easy Visa" },
+    { name: "TU Delft", country: "Netherlands 🇳🇱", score: 79, rank: "Top 50 World", field: "Engineering", tuition: "$12,000", scholarship: "Holland Scholarship", badge: "Low Cost" },
+    { name: "UBC Vancouver", country: "Canada 🇨🇦", score: 76, rank: "#3 Canada", field: "Computer Science", tuition: "$22,000", scholarship: "International $8,000/yr", badge: "Safe Pick" },
   ];
 
 
@@ -882,15 +950,15 @@ function Slide4() {
         {/* Header */}
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 48, flexWrap: "wrap", gap: 16 }}>
           <div>
-            <span className={`eyebrow reveal ${inView ? "visible" : ""}`}>05 — Kết quả</span>
+            <span className={`eyebrow reveal ${inView ? "visible" : ""}`}>05 — Results</span>
             <div className={`section-divider reveal ${inView ? "visible" : ""} delay-1`} style={{ margin: "12px 0 16px" }} />
             <h2 className={`font-display reveal ${inView ? "visible" : ""} delay-1`} style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 600, color: "var(--cream)", letterSpacing: "-0.02em" }}>
-              4 trường phù hợp nhất<br />với profile của bạn.
+              Top 5 best-match universities<br />for your profile.
             </h2>
           </div>
           <div className={`reveal ${inView ? "visible" : ""} delay-2`} style={{ display: "flex", gap: 8, alignItems: "center", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(245,240,232,0.1)", borderRadius: 8, padding: "8px 16px" }}>
-            <span style={{ fontSize: "0.75rem", color: "var(--cream-dim)" }}>Lọc theo</span>
-            {["Học bổng", "Ngân sách", "Visa"].map(t => (
+            <span style={{ fontSize: "0.75rem", color: "var(--cream-dim)" }}>Filter by</span>
+            {["Scholarships", "Budget", "Visa"].map(t => (
               <span key={t} style={{ fontSize: "0.72rem", padding: "4px 10px", borderRadius: 20, background: "rgba(245,240,232,0.06)", color: "var(--cream-dim)", cursor: "pointer" }}>{t}</span>
             ))}
           </div>
@@ -920,7 +988,7 @@ function Slide4() {
                 </div>
               </div>
               <div style={{ textAlign: "right", flexShrink: 0 }}>
-                <div className="font-mono-dm" style={{ color: "var(--cream)", fontSize: "1rem" }}>{u.tuition}<span style={{ color: "var(--cream-dim)", fontSize: "0.72rem" }}>/năm</span></div>
+                <div className="font-mono-dm" style={{ color: "var(--cream)", fontSize: "1rem" }}>{u.tuition}<span style={{ color: "var(--cream-dim)", fontSize: "0.72rem" }}>/yr</span></div>
                 <div style={{ fontSize: "0.72rem", color: "var(--gold)", marginTop: 4 }}>{u.scholarship}</div>
               </div>
             </div>
@@ -940,48 +1008,48 @@ function SlideTestimonials() {
   const stories = [
     {
       initials: "MA",
-      name: "Nguyễn Minh Anh",
-      info: "Lớp 12 · Hà Nội · GPA 8.7",
+      name: "Nguyen Minh Anh",
+      info: "Grade 12 · Hanoi · GPA 8.7",
       specialty: "Computer Science",
       school: "University of Toronto 🇨🇦",
-      scholarship: "Merit Scholarship $12,000/năm",
-      quote: "Chỉ 3 phút nhập profile, AI cho ngay 5 trường với học bổng cụ thể — điều agencies mất 3 tháng vẫn chưa làm được.",
+      scholarship: "Merit Scholarship $12,000/yr",
+      quote: "Just 3 minutes filling in my profile, and the AI instantly gave me 5 schools with specific scholarships — something agencies couldn't do in 3 months.",
       photoGrad: "linear-gradient(170deg, #1a0508 0%, #5a1018 45%, #c8202a 100%)",
       pillColor: "#c5f542",
       pillText: "#1a2800",
     },
     {
       initials: "HP",
-      name: "Trần Hoàng Phúc",
-      info: "Lớp 12 · TP.HCM · GPA 9.1",
+      name: "Tran Hoang Phuc",
+      info: "Grade 12 · Ho Chi Minh City · GPA 9.1",
       specialty: "Engineering",
       school: "NUS Singapore 🇸🇬",
       scholarship: "ASEAN Scholarship — Full tuition",
-      quote: "AI recommend NUS với xác suất đậu 74% dựa trên 10,000 hồ sơ thực — và mình đã đậu thật.",
+      quote: "The AI recommended NUS with a 74% acceptance probability based on 10,000 real profiles — and I actually got in.",
       photoGrad: "linear-gradient(170deg, #0c0a02 0%, #3d2e04 45%, #e8a020 100%)",
       pillColor: "#c5f542",
       pillText: "#1a2800",
     },
     {
       initials: "TH",
-      name: "Lê Thị Thanh Hà",
-      info: "Lớp 11 · Đà Nẵng · GPA 8.3",
+      name: "Le Thi Thanh Ha",
+      info: "Grade 11 · Da Nang · GPA 8.3",
       specialty: "Business",
       school: "Univ. of Melbourne 🇦🇺",
       scholarship: "International Merit Award $8,000",
-      quote: "Gia đình không nhiều ngân sách. StudyMapper tìm Melbourne với học bổng fit đúng budget — điều ba mẹ không nghĩ có thể.",
+      quote: "Our family's budget was tight. StudyMapper found Melbourne with a scholarship that fit perfectly — something my parents never thought possible.",
       photoGrad: "linear-gradient(170deg, #030e06 0%, #0b2e12 45%, #22c55e 100%)",
       pillColor: "#c5f542",
       pillText: "#1a2800",
     },
     {
       initials: "QB",
-      name: "Phạm Quốc Bảo",
-      info: "Lớp 12 · Cần Thơ · GPA 8.9",
+      name: "Pham Quoc Bao",
+      info: "Grade 12 · Can Tho · GPA 8.9",
       specialty: "Law",
       school: "King's College London 🇬🇧",
       scholarship: "International Award £6,000",
-      quote: "Không ai tư vấn được ngành Law ở Anh phù hợp ngân sách. StudyMapper tìm ra KCL — đúng dream school của mình.",
+      quote: "No one could advise me on Law in the UK within budget. StudyMapper found KCL — my exact dream school.",
       photoGrad: "linear-gradient(170deg, #06060f 0%, #141030 45%, #6366f1 100%)",
       pillColor: "#c5f542",
       pillText: "#1a2800",
@@ -1002,14 +1070,14 @@ function SlideTestimonials() {
 
         {/* Header */}
         <div className={`reveal ${inView ? "visible" : ""}`} style={{ textAlign: "center", marginBottom: 64 }}>
-          <span className="eyebrow">06 — Câu chuyện thực</span>
+          <span className="eyebrow">06 — Real Stories</span>
           <div className="section-divider" style={{ margin: "12px auto 20px" }} />
           <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3.2rem)", fontWeight: 700, color: "var(--cream)", letterSpacing: "-0.02em" }}>
-            Học sinh Việt Nam<br />
-            <span style={{ color: "var(--gold)" }}>đã tìm được trường đúng.</span>
+            Students who found<br />
+            <span style={{ color: "var(--gold)" }}>their perfect match.</span>
           </h2>
           <p style={{ color: "var(--cream-dim)", marginTop: 16, fontSize: "0.95rem" }}>
-            Kết quả thực từ học sinh dùng StudyMapper × ETEST trong mùa tuyển sinh 2024–2025.
+            2024–2025 admits — real profiles, real schools, real scholarships.
           </p>
         </div>
 
@@ -1115,25 +1183,25 @@ function SlideTestimonials() {
 function Slide5() {
   const [ref, inView] = useInView(0.1);
   const [messages, setMessages] = useState([
-    { role: "ai", text: "Xin chào! Mình là AI tư vấn du học của StudyMapper 👋\nBạn muốn hỏi gì về việc chọn trường?" },
-    { role: "user", text: "Con tôi học lớp 12, GPA 8.7, muốn học Computer Science ở Canada, budget $25k/năm" },
-    { role: "ai", text: "Dựa trên profile của bạn, đây là 3 trường phù hợp nhất:\n\n🥇 University of Toronto — Match 94% · Xác suất đậu ~72% · Học bổng Merit $12,000\n🥈 UBC Vancouver — Match 89% · An toàn hơn · Học bổng $8,000\n🥉 McMaster — Match 83% · Dễ đậu nhất · Học bổng $5,000\n\nBạn muốn mình phân tích chi tiết trường nào?" },
+    { role: "ai", text: "Hello! I'm StudyMapper's AI study abroad advisor 👋\nWhat would you like to know about choosing a school?" },
+    { role: "user", text: "My child is in Grade 12, GPA 8.7, wants to study Computer Science in Canada, budget $25k/year" },
+    { role: "ai", text: "Based on your profile, here are the 3 best-fit schools:\n\n🥇 University of Toronto — Match 94% · Acceptance ~72% · Merit Scholarship $12,000\n🥈 UBC Vancouver — Match 89% · Safer option · Scholarship $8,000\n🥉 McMaster — Match 83% · Easiest to get in · Scholarship $5,000\n\nWhich school would you like me to analyze in detail?" },
   ]);
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
 
   const quickPrompts = [
-    "IELTS cần bao nhiêu để vào UofT?",
-    "So sánh học phí Canada vs Úc",
-    "Học bổng nào phù hợp GPA 8.5?",
-    "Tỉ lệ visa Canada cho học sinh VN?",
+    "What IELTS score does UofT require?",
+    "Compare tuition: Canada vs Australia",
+    "Which scholarships fit a GPA of 8.5?",
+    "Canada visa approval rate for students?",
   ];
 
   const send = () => {
     if (!input.trim()) return;
     setMessages(m => [...m,
       { role: "user", text: input },
-      { role: "ai", text: "Mình đang phân tích dữ liệu từ 5,000+ trường... Kết quả sẽ có ngay sau đây 🔍" }
+      { role: "ai", text: "Analyzing data from 5,000+ universities... Results coming right up 🔍" }
     ]);
     setInput("");
   };
@@ -1157,10 +1225,10 @@ function Slide5() {
           <span className={`eyebrow reveal ${inView ? "visible" : ""}`}>07 — AI Chat</span>
           <div className={`section-divider reveal ${inView ? "visible" : ""} delay-1`} style={{ margin: "12px auto 20px" }} />
           <h2 className={`font-display reveal ${inView ? "visible" : ""} delay-1`} style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 600, color: "var(--cream)", letterSpacing: "-0.02em" }}>
-            Hỏi AI bất cứ điều gì.
+            Ask AI anything.
           </h2>
           <p className={`reveal ${inView ? "visible" : ""} delay-2`} style={{ color: "var(--cream-dim)", marginTop: 12, fontSize: "0.95rem" }}>
-            Tư vấn 24/7 — hiểu context, nhớ hồ sơ của bạn, không trả lời chung chung.
+            24/7 advisory — context-aware, remembers your profile, no generic answers.
           </p>
         </div>
 
@@ -1173,7 +1241,7 @@ function Slide5() {
               <div style={{ fontWeight: 600, color: "var(--cream)", fontSize: "0.9rem" }}>StudyMapper AI</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80" }} />
-                <span style={{ fontSize: "0.72rem", color: "var(--cream-dim)" }}>Online — phản hồi ngay · Đang nhớ hồ sơ của bạn</span>
+                <span style={{ fontSize: "0.72rem", color: "var(--cream-dim)" }}>Online — responds instantly · Remembering your profile</span>
               </div>
             </div>
           </div>
@@ -1192,8 +1260,8 @@ function Slide5() {
 
           {/* Input */}
           <div style={{ padding: "16px 24px", borderTop: "1px solid rgba(245,240,232,0.08)", display: "flex", gap: 12 }}>
-            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Hỏi về trường, học bổng, visa, IELTS..." className="field-input" style={{ flex: 1 }} />
-            <button onClick={send} className="btn-primary" style={{ padding: "12px 24px", flexShrink: 0 }}>Gửi →</button>
+            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Ask about schools, scholarships, visa, IELTS..." className="field-input" style={{ flex: 1 }} />
+            <button onClick={send} className="btn-primary" style={{ padding: "12px 24px", flexShrink: 0 }}>Send →</button>
           </div>
         </div>
 
@@ -1216,12 +1284,12 @@ function Slide5() {
 function Slide6() {
   const [ref, inView] = useInView(0.1);
   const reasons = [
-    "Tỉ lệ Visa thành công đến 99% — cao nhất thị trường",
-    "Đối tác của 5,000+ trường tại Mỹ, Úc, Canada, Anh, Singapore",
-    "AI matching cá nhân hoá — không phải tư vấn đại trà như GPT",
-    "Chiến lược săn học bổng, cam kết 100% trúng tuyển",
-    "Hỗ trợ toàn diện hồ sơ apply, visa và định cư sau tốt nghiệp",
-    "Xây dựng lộ trình IELTS / TOEFL / SAT cùng chuyên gia",
+    "99% visa success rate — highest in Vietnam",
+    "5,000+ partner universities across 6 countries",
+    "AI match in seconds — not weeks of generic advice",
+    "Scholarship strategy + 100% admission guarantee",
+    "End-to-end: application, visa, settlement support",
+    "Personalized IELTS / TOEFL / SAT roadmap included",
   ];
 
   return (
@@ -1231,13 +1299,13 @@ function Slide6() {
         <div className="glow-gold" style={{ width: 300, height: 300, bottom: "5%", left: "5%", opacity: 0.3 }} />
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1060, width: "100%", padding: "100px 40px", margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
+          <div className="contact-grid-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
             {/* LEFT */}
             <div>
-              <span className={`eyebrow reveal-left ${inView ? "visible" : ""}`}>08 — Liên hệ</span>
+              <span className={`eyebrow reveal-left ${inView ? "visible" : ""}`}>08 — Contact</span>
               <div className={`section-divider reveal-left ${inView ? "visible" : ""} delay-1`} style={{ margin: "14px 0 24px" }} />
               <h2 className={`font-display reveal-left ${inView ? "visible" : ""} delay-1`} style={{ fontSize: "clamp(1.9rem,3vw,2.8rem)", fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.02em", color: "var(--cream)", marginBottom: 32 }}>
-                Vì sao nên chọn<br />
+                Why choose<br />
                 <span style={{ color: "var(--red)" }}>StudyMapper × ETEST?</span>
               </h2>
 
@@ -1267,55 +1335,55 @@ function Slide6() {
 
             {/* RIGHT — form */}
             <div className={`glass reveal-right ${inView ? "visible" : ""} delay-2`} style={{ borderRadius: 20, padding: 40 }}>
-              <h3 style={{ fontSize: "1.3rem", fontWeight: 700, color: "var(--cream)", marginBottom: 8 }}>Đăng ký tư vấn miễn phí</h3>
-              <p style={{ fontSize: "0.85rem", color: "var(--cream-dim)", marginBottom: 32, lineHeight: 1.6 }}>Chuyên gia sẽ liên hệ trong vòng 24 giờ.</p>
+              <h3 style={{ fontSize: "1.3rem", fontWeight: 700, color: "var(--cream)", marginBottom: 8 }}>Register for Free Consultation</h3>
+              <p style={{ fontSize: "0.85rem", color: "var(--cream-dim)", marginBottom: 32, lineHeight: 1.6 }}>An expert will contact you within 24 hours.</p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Họ và tên</label>
-                    <input className="field-input" placeholder="Lê Văn A" />
+                    <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Full Name</label>
+                    <input className="field-input" placeholder="John Smith" />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Số điện thoại</label>
+                    <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Phone Number</label>
                     <input className="field-input" placeholder="(+84) 0123 456 789" />
                   </div>
                 </div>
 
                 <div>
                   <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Email</label>
-                  <input className="field-input" type="email" placeholder="alevan@gmail.com" />
+                  <input className="field-input" type="email" placeholder="john@email.com" />
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Quốc gia</label>
+                    <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Country</label>
                     <select className="field-input">
-                      <option>Du học Mỹ 🇺🇸</option>
-                      <option>Du học Anh 🇬🇧</option>
-                      <option>Du học Canada 🇨🇦</option>
-                      <option>Du học Úc 🇦🇺</option>
-                      <option>Du học Singapore 🇸🇬</option>
+                      <option>USA 🇺🇸</option>
+                      <option>UK 🇬🇧</option>
+                      <option>Canada 🇨🇦</option>
+                      <option>Australia 🇦🇺</option>
+                      <option>Singapore 🇸🇬</option>
                     </select>
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Bậc học</label>
+                    <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Study Level</label>
                     <select className="field-input">
-                      <option>Bậc Đại học</option>
-                      <option>Thạc sĩ</option>
-                      <option>Trung học</option>
-                      <option>Ngắn hạn / Hè</option>
+                      <option>Undergraduate</option>
+                      <option>Master's</option>
+                      <option>High School</option>
+                      <option>Short Course</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Ghi chú</label>
-                  <textarea className="field-input" placeholder="Chia sẻ thêm về mong muốn của bạn..." rows={3} style={{ resize: "none" }} />
+                  <label style={{ display: "block", fontSize: "0.72rem", color: "var(--cream-dim)", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>Notes</label>
+                  <textarea className="field-input" placeholder="Share more about your goals..." rows={3} style={{ resize: "none" }} />
                 </div>
 
                 <button className="btn-primary" style={{ width: "100%", marginTop: 8, fontSize: "1rem", padding: "15px" }}>
-                  Đặt hẹn tư vấn →
+                  Book a Consultation →
                 </button>
               </div>
             </div>
@@ -1335,7 +1403,7 @@ function Slide6() {
             <span style={{ color: "rgba(245,240,232,0.25)", fontSize: "0.75rem", marginLeft: 8, fontWeight: 400 }}>× ETEST</span>
           </span>
           <div style={{ display: "flex", gap: 28 }}>
-            {["Giới thiệu", "Tính năng", "Kết quả", "Tư vấn"].map(l => (
+            {["About", "Features", "Results", "Consult"].map(l => (
               <span key={l} style={{ fontSize: "0.8rem", color: "rgba(245,240,232,0.3)", cursor: "pointer", transition: "color 0.2s" }}
                 onMouseEnter={e => e.target.style.color = "var(--cream-dim)"}
                 onMouseLeave={e => e.target.style.color = "rgba(245,240,232,0.3)"}
