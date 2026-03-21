@@ -326,10 +326,11 @@ function LaptopMockup({ scrollY, mouse, inView }) {
       {/* Globe — clipped to circle, tilted 25° clockwise */}
       <div style={{ position: "relative", zIndex: 1, borderRadius: "50%", overflow: "hidden", width: SIZE, height: SIZE, transform: "rotate(25deg)" }}>
         <Suspense fallback={<div style={{ width: SIZE, height: SIZE, borderRadius: "50%", background: "#0d3d6e" }}/>}>
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
           <Globe
             ref={globeRef}
-            width={SIZE}
-            height={SIZE}
+            width={Math.round(SIZE * 1.35)}
+            height={Math.round(SIZE * 1.35)}
             onGlobeReady={onGlobeReady}
             backgroundColor="rgba(0,0,0,0)"
             globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
@@ -345,6 +346,7 @@ function LaptopMockup({ scrollY, mouse, inView }) {
             pointRadius={0.45}
             pointsMerge={false}
           />
+          </div>
         </Suspense>
       </div>
 
