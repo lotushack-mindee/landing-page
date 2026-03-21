@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//usr/local/bin/**)",
+      "Read(//usr/local/**)",
+      "Read(//Users/lum/**)",
+      "Read(//Users/lum/Library/**)"
+    ]
+  }
+}
