@@ -275,7 +275,7 @@ const GLOBE_MARKERS = [
 function LaptopMockup({ scrollY, mouse, inView }) {
   const globeRef   = useRef(null);
   const wrapperRef = useRef(null);
-  const SIZE = 560;
+  const SIZE = 680;
   const parallaxY = scrollY * -0.28;
 
   // Setup controls once globe is ready — no user interaction, auto-rotate only
@@ -283,7 +283,7 @@ function LaptopMockup({ scrollY, mouse, inView }) {
     if (!globeRef.current) return;
     const ctrl = globeRef.current.controls();
     ctrl.autoRotate      = true;
-    ctrl.autoRotateSpeed = 0.8;
+    ctrl.autoRotateSpeed = 1.6;
     ctrl.enableZoom      = false;
     ctrl.enablePan       = false;
     ctrl.enableRotate    = false;
