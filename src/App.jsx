@@ -71,85 +71,158 @@ function Nav() {
   );
 }
 
-// ── Laptop Mockup ───────────────────────────────────────────────────────────
-function LaptopMockup({ parallaxY, inView }) {
+// ── Airplane SVG Hero ────────────────────────────────────────────────────────
+const WIN_OPS = [0.50,0.42,0.58,0.45,0.52,0.40,0.48,0.55,0.43,0.50,0.47,0.38,0.56,0.50,0.44,0.52,0.49,0.41,0.57,0.50,0.44,0.53,0.48,0.40];
+
+function AirplaneHero({ planeY, planeRotate, mouse, inView }) {
+  const mx = mouse.x * 10;
+  const my = mouse.y * 10;
   return (
     <div
       className={`reveal-right ${inView ? "visible" : ""} delay-2`}
       style={{
-        transform: `perspective(1400px) rotateY(-14deg) rotateX(6deg) translateY(${parallaxY}px)`,
-        transition: "transform 0.15s ease-out, opacity 0.8s ease, translate 0.8s ease",
-        transformOrigin: "center center",
-        flexShrink: 0,
-        width: 520,
+        position: "relative", flexShrink: 0, width: 580,
+        transform: `translateX(${mx}px) translateY(${my + planeY}px)`,
+        transition: "transform 0.14s ease-out, opacity 0.8s ease, translate 0.8s ease",
+        filter: "drop-shadow(0 30px 60px rgba(200,32,42,0.22)) drop-shadow(0 10px 30px rgba(0,0,0,0.7))",
       }}
     >
-      {/* Screen lid */}
-      <div style={{
-        background: "linear-gradient(145deg, #1a1c22, #111318)",
-        borderRadius: "14px 14px 0 0",
-        padding: "10px 10px 0",
-        border: "1px solid rgba(255,255,255,0.08)",
-        borderBottom: "none",
-        boxShadow: "0 -4px 40px rgba(200,32,42,0.15), 0 0 80px rgba(0,0,0,0.6)",
-      }}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#2a2c32" }} />
-        </div>
-        <div style={{
-          background: "#fff", borderRadius: "8px 8px 0 0",
-          overflow: "hidden", aspectRatio: "16/10",
-          position: "relative", boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06)",
-        }}>
-          <div style={{ position: "absolute", inset: 0, background: "#ffffff" }} />
-          <div style={{ position: "absolute", top: -30, left: "15%", width: 180, height: 140, background: "radial-gradient(ellipse, rgba(200,32,42,0.12) 0%, transparent 70%)", filter: "blur(16px)" }} />
-          <div style={{ position: "absolute", top: -10, right: "5%", width: 140, height: 100, background: "radial-gradient(ellipse, rgba(232,160,32,0.1) 0%, transparent 70%)", filter: "blur(14px)" }} />
-          {/* Fake nav */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.06)", background: "rgba(255,255,255,0.95)" }}>
-            <span style={{ fontSize: 9, fontWeight: 700, color: "#0c0f13", fontFamily: "'Be Vietnam Pro',sans-serif" }}>Study<span style={{ color: "var(--red)" }}>Mapper</span></span>
-            <div style={{ display: "flex", gap: 10 }}>
-              {["Tính năng","Kết quả","Tư vấn"].map(l => (
-                <span key={l} style={{ fontSize: 7, color: "rgba(0,0,0,0.35)", fontFamily: "'Be Vietnam Pro',sans-serif" }}>{l}</span>
-              ))}
-            </div>
-            <div style={{ background: "var(--red)", borderRadius: 20, padding: "3px 8px", fontSize: 6.5, color: "white", fontFamily: "'Be Vietnam Pro',sans-serif" }}>Bắt đầu</div>
-          </div>
-          {/* Hero text */}
-          <div style={{ position: "absolute", top: "28%", left: "50%", transform: "translateX(-50%)", textAlign: "center", width: "82%" }}>
-            <div style={{ fontSize: 6.5, color: "var(--red)", letterSpacing: "0.12em", marginBottom: 6, fontFamily: "'Be Vietnam Pro',sans-serif", fontWeight: 600 }}>STUDYMAPPER × ETEST — AI DU HỌC</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#0c0f13", lineHeight: 1.25, fontFamily: "'Be Vietnam Pro',sans-serif" }}>
-              Tìm trường <span style={{ color: "#e8a020", fontStyle: "italic" }}>đúng</span><br />cho con bạn.
-            </div>
-            <div style={{ fontSize: 6, color: "rgba(0,0,0,0.45)", marginTop: 5, lineHeight: 1.5, fontFamily: "'Be Vietnam Pro',sans-serif" }}>AI matching cá nhân hoá — không phải lời khuyên chung chung.</div>
-            <div style={{ marginTop: 8, display: "flex", gap: 5, justifyContent: "center" }}>
-              <div style={{ background: "var(--red)", borderRadius: 4, padding: "4px 10px", fontSize: 6.5, color: "white", fontFamily: "'Be Vietnam Pro',sans-serif", fontWeight: 600 }}>Bắt đầu ngay →</div>
-              <div style={{ border: "1px solid rgba(0,0,0,0.15)", borderRadius: 4, padding: "4px 10px", fontSize: 6.5, color: "rgba(0,0,0,0.5)", fontFamily: "'Be Vietnam Pro',sans-serif" }}>Xem demo</div>
-            </div>
-          </div>
-          {/* University cards */}
-          <div style={{ position: "absolute", bottom: 10, left: 14, right: 14, display: "flex", flexDirection: "column", gap: 4 }}>
-            {[
-              { name: "Univ. of Toronto 🇨🇦", score: 94, match: "Best Match" },
-              { name: "NUS Singapore 🇸🇬", score: 88, match: "Visa dễ" },
-            ].map(u => (
-              <div key={u.name} style={{ background: "#f8f8f8", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 4, padding: "5px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 6.5, color: "#0c0f13", fontFamily: "'Be Vietnam Pro',sans-serif", fontWeight: 500 }}>{u.name}</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 5.5, background: u.score > 90 ? "var(--red)" : "#e8a020", color: "white", padding: "1px 5px", borderRadius: 10, fontFamily: "'Be Vietnam Pro',sans-serif" }}>{u.match}</span>
-                  <span style={{ fontSize: 6.5, color: "#e8a020", fontFamily: "'Be Vietnam Pro',sans-serif", fontWeight: 700 }}>{u.score}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      {/* Hinge */}
-      <div style={{ height: 4, background: "linear-gradient(90deg, #0e1014, #1e2028, #0e1014)", borderLeft: "1px solid rgba(255,255,255,0.06)", borderRight: "1px solid rgba(255,255,255,0.06)" }} />
-      {/* Base */}
-      <div style={{ background: "linear-gradient(180deg, #16181f, #0e1014)", borderRadius: "0 0 12px 12px", height: 22, border: "1px solid rgba(255,255,255,0.06)", borderTop: "none", boxShadow: "0 20px 60px rgba(0,0,0,0.7), 0 4px 20px rgba(200,32,42,0.1)", position: "relative" }}>
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 60, height: 10, borderRadius: 3, border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }} />
-      </div>
-      <div style={{ height: 8, background: "radial-gradient(ellipse at 50% 0%, rgba(0,0,0,0.5) 0%, transparent 80%)", borderRadius: "0 0 50% 50%" }} />
+      <svg viewBox="0 0 700 460" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", transform: `rotate(${planeRotate}deg)`, transition: "transform 0.3s ease-out", transformOrigin: "62% 56%" }}>
+        <defs>
+          <linearGradient id="p-body" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#eeeae2"/>
+            <stop offset="50%" stopColor="#d8dde6"/>
+            <stop offset="100%" stopColor="#a8b0be"/>
+          </linearGradient>
+          <linearGradient id="p-wbot" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#c0c8d6"/>
+            <stop offset="100%" stopColor="#848c9c"/>
+          </linearGradient>
+          <linearGradient id="p-wtop" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stopColor="#d8dce6"/>
+            <stop offset="100%" stopColor="#eceaf2"/>
+          </linearGradient>
+          <linearGradient id="p-eng" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#484e5a"/>
+            <stop offset="35%" stopColor="#747c8c"/>
+            <stop offset="100%" stopColor="#303640"/>
+          </linearGradient>
+          <linearGradient id="p-tail" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#d8dce4"/>
+            <stop offset="100%" stopColor="#c0c6d0"/>
+          </linearGradient>
+          <linearGradient id="p-tr1" x1="1" y1="0" x2="0" y2="0">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.22)"/>
+            <stop offset="100%" stopColor="rgba(255,255,255,0)"/>
+          </linearGradient>
+          <linearGradient id="p-tr2" x1="1" y1="0" x2="0" y2="0">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.13)"/>
+            <stop offset="100%" stopColor="rgba(255,255,255,0)"/>
+          </linearGradient>
+          <radialGradient id="p-glow" cx="62%" cy="55%" r="50%">
+            <stop offset="0%" stopColor="rgba(232,160,32,0.18)"/>
+            <stop offset="50%" stopColor="rgba(200,32,42,0.10)"/>
+            <stop offset="100%" stopColor="transparent"/>
+          </radialGradient>
+          <filter id="p-shadow">
+            <feDropShadow dx="0" dy="12" stdDeviation="18" floodColor="rgba(0,0,0,0.5)"/>
+          </filter>
+        </defs>
+
+        {/* Atmosphere glow behind plane */}
+        <ellipse cx="430" cy="250" rx="300" ry="200" fill="url(#p-glow)"/>
+
+        {/* Contrails (fade from plane center left) */}
+        <path d="M 20 400 Q 180 350 360 288" stroke="url(#p-tr1)" strokeWidth="22" strokeLinecap="round"/>
+        <path d="M 20 418 Q 183 367 362 304" stroke="url(#p-tr2)" strokeWidth="15" strokeLinecap="round"/>
+        <path d="M 40 378 Q 190 334 363 276" stroke="url(#p-tr1)" strokeWidth="10" strokeLinecap="round" opacity="0.55"/>
+
+        {/* === Main plane group, rotated nose-up === */}
+        <g transform="rotate(-17, 390, 250)" filter="url(#p-shadow)">
+
+          {/* Under-wing (large bottom surface, fully visible) */}
+          <path d="M 375 260 L 52 375 L 92 402 L 404 288 Z" fill="url(#p-wbot)"/>
+          {/* Wing leading edge glint */}
+          <path d="M 375 260 L 52 375 L 58 368 L 375 254 Z" fill="rgba(255,255,255,0.13)"/>
+          {/* Wing tip */}
+          <path d="M 52 375 Q 38 388 48 402 L 92 402 Z" fill="#8890a2"/>
+
+          {/* Upper-wing (partially visible over fuselage) */}
+          <path d="M 375 248 L 92 148 L 132 132 L 404 234 Z" fill="url(#p-wtop)"/>
+          {/* Wing tip top */}
+          <path d="M 92 148 Q 78 138 84 126 L 132 132 Z" fill="#bcc4d2"/>
+
+          {/* Wing-body fairing */}
+          <ellipse cx="392" cy="256" rx="52" ry="20" fill="#d0d6e0" opacity="0.7"/>
+
+          {/* === Engines (4 × turbofan) === */}
+          {/* Outer-left engine (below wing, fully visible) */}
+          <g transform="translate(174,326) rotate(10)">
+            <rect x="-48" y="-15" width="96" height="15" rx="7" fill="url(#p-eng)"/>
+            <ellipse cx="-48" cy="-7" rx="18" ry="14" fill="#2c3240"/>
+            <ellipse cx="-48" cy="-7" rx="11" ry="9" fill="#12161e"/>
+            <ellipse cx="48" cy="-7" rx="14" ry="11" fill="#5c6270"/>
+          </g>
+
+          {/* Inner-left engine (below wing, fully visible) */}
+          <g transform="translate(268,298) rotate(7)">
+            <rect x="-40" y="-13" width="80" height="13" rx="6" fill="url(#p-eng)"/>
+            <ellipse cx="-40" cy="-6" rx="15" ry="12" fill="#2c3240"/>
+            <ellipse cx="-40" cy="-6" rx="9" ry="8" fill="#12161e"/>
+            <ellipse cx="40" cy="-6" rx="12" ry="9" fill="#5c6270"/>
+          </g>
+
+          {/* Inner-right engine (above wing, half visible) */}
+          <g transform="translate(268,210) rotate(-7)" opacity="0.42">
+            <rect x="-40" y="0" width="80" height="12" rx="6" fill="#b0b8c4"/>
+            <ellipse cx="-40" cy="6" rx="15" ry="10" fill="#8890a0"/>
+          </g>
+
+          {/* Outer-right engine (above wing, mostly hidden) */}
+          <g transform="translate(174,184) rotate(-10)" opacity="0.28">
+            <rect x="-48" y="0" width="96" height="13" rx="7" fill="#b0b8c4"/>
+            <ellipse cx="-48" cy="7" rx="18" ry="11" fill="#8890a0"/>
+          </g>
+
+          {/* === Fuselage === */}
+          <path
+            d="M 104 246 Q 104 228 126 226 L 646 220 Q 694 220 714 232 Q 722 241 714 250 L 646 258 Q 622 262 126 270 Q 104 268 104 250 Z"
+            fill="url(#p-body)"
+          />
+          {/* Belly shade */}
+          <path d="M 126 262 Q 400 272 646 260 L 646 270 Q 400 280 126 270 Z" fill="rgba(0,0,0,0.12)"/>
+          {/* Top highlight */}
+          <path d="M 126 226 Q 400 222 646 220 L 646 224 Q 400 226 126 230 Z" fill="rgba(255,255,255,0.38)"/>
+          {/* Red livery stripe */}
+          <path d="M 126 264 Q 400 274 646 262 L 646 265 Q 400 277 126 267 Z" fill="rgba(200,32,42,0.55)"/>
+          {/* Gold accent above red */}
+          <path d="M 126 260 Q 400 270 646 258 L 646 261 Q 400 273 126 263 Z" fill="rgba(232,160,32,0.30)"/>
+
+          {/* Windows */}
+          {WIN_OPS.map((op, i) => (
+            <rect key={i} x={175 + i * 20} y="237" width="10" height="8" rx="3"
+              fill={`rgba(${i % 2 === 0 ? "160,200,255" : "180,215,255"},${op})`}/>
+          ))}
+
+          {/* === Nose cone === */}
+          <path d="M 646 220 Q 706 224 728 235 Q 706 246 646 258 Z" fill="#e2ddd4"/>
+          <path d="M 692 226 Q 720 233 728 235 Q 720 239 692 242 Z" fill="#c4bfb6"/>
+          {/* Cockpit windows */}
+          <ellipse cx="660" cy="233" rx="9" ry="6" fill="rgba(80,130,200,0.65)"/>
+          <ellipse cx="675" cy="230" rx="6" ry="5" fill="rgba(80,130,200,0.60)"/>
+
+          {/* === Tail assembly === */}
+          {/* Vertical fin */}
+          <path d="M 104 246 L 107 180 Q 122 188 128 246 Z" fill="#ccd2dc"/>
+          <path d="M 107 180 Q 115 148 138 158 Q 142 174 128 246 L 118 246 Z" fill="url(#p-tail)"/>
+          {/* Red accent on fin */}
+          <path d="M 115 148 Q 128 153 138 158 Q 126 164 115 158 Z" fill="rgba(200,32,42,0.85)"/>
+          {/* Horizontal stabilizers */}
+          <path d="M 104 254 L 38 274 L 50 285 L 114 262 Z" fill="#c0c8d4"/>
+          <path d="M 104 242 L 38 222 L 50 216 L 114 236 Z" fill="#ccd4de"/>
+
+        </g>
+      </svg>
     </div>
   );
 }
@@ -211,21 +284,28 @@ function Slide1() {
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
 
-  const parallaxY = scrollY * -0.18;
+  // Plane flies UP as user scrolls DOWN
+  const planeY = scrollY * -0.52;
+  const planeRotate = -Math.min(11, scrollY * 0.013); // nose tilts higher as it climbs
 
   return (
     <section id="hero" ref={(el) => { ref.current = el; sectionRef.current = el; }} style={{
       minHeight: "100vh", position: "relative", display: "flex",
-      flexDirection: "column", alignItems: "stretch", overflow: "hidden", background: "var(--ink)",
+      flexDirection: "column", alignItems: "stretch", overflow: "hidden",
+      background: "linear-gradient(180deg, #060810 0%, #0c0f13 40%, #0f1018 100%)",
     }}>
-      <div className="glow-red" style={{ width: 500, height: 500, top: "20%", right: "10%", opacity: 0.5 }} />
-      <div className="glow-gold" style={{ width: 400, height: 400, bottom: "5%", left: "5%", opacity: 0.4 }} />
-      <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "linear-gradient(var(--cream) 1px, transparent 1px), linear-gradient(90deg, var(--cream) 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
+      {/* Sky atmosphere layers */}
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 50% at 70% 80%, rgba(200,32,42,0.18) 0%, rgba(232,160,32,0.10) 40%, transparent 70%)", pointerEvents: "none" }}/>
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 60% 40% at 55% 90%, rgba(232,120,20,0.12) 0%, transparent 60%)", pointerEvents: "none" }}/>
+      <div className="glow-red" style={{ width: 600, height: 600, top: "30%", right: "8%", opacity: 0.35 }} />
+      <div className="glow-gold" style={{ width: 360, height: 360, bottom: "10%", left: "8%", opacity: 0.28 }} />
+      {/* Grid */}
+      <div style={{ position: "absolute", inset: 0, opacity: 0.035, backgroundImage: "linear-gradient(var(--cream) 1px, transparent 1px), linear-gradient(90deg, var(--cream) 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
 
       <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ maxWidth: 1200, width: "100%", padding: "80px 48px", display: "flex", flexDirection: "column", gap: 0, margin: "0 auto" }}>
         {/* Hero two-column row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 48 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 40 }}>
           {/* LEFT — text */}
           <div style={{ flex: "0 0 auto", maxWidth: 480 }}>
             <div className={`reveal ${inView ? "visible" : ""}`}>
@@ -246,13 +326,13 @@ function Slide1() {
             </div>
           </div>
 
-          {/* RIGHT — laptop + floating cards */}
-          <div style={{ position: "relative", flexShrink: 0 }}>
-            {/* Glow behind laptop */}
-            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 480, height: 340, background: "radial-gradient(ellipse at 50% 50%, rgba(200,32,42,0.28) 0%, rgba(232,160,32,0.14) 40%, transparent 70%)", filter: "blur(40px)", zIndex: 0, pointerEvents: "none" }} />
+          {/* RIGHT — airplane + floating cards */}
+          <div style={{ position: "relative", flexShrink: 0, width: 580 }}>
 
-            {/* Floating card: AI Match Score */}
-            <FloatCard depth={1.4} mouse={mouse} title="ai-match.app" style={{ top: -36, left: -72, minWidth: 152 }}>
+            {/* Floating card: AI Match Score (upper-left of plane) */}
+            <FloatCard depth={1.3} mouse={mouse} title="ai-match.app"
+              style={{ top: 10, left: -60, minWidth: 155, zIndex: 20,
+                transform: `translate(${mouse.x*1.3*14}px, ${mouse.y*1.3*14 + planeY * 0.35}px)` }}>
               <div style={{ fontSize: "0.6rem", color: "var(--gold)", letterSpacing: "0.1em", marginBottom: 8, fontWeight: 700 }}>AI MATCH SCORE</div>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 38, height: 38, borderRadius: "50%", border: "2px solid var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 800, color: "var(--gold)", boxShadow: "0 0 12px rgba(232,160,32,0.3)" }}>94</div>
@@ -263,15 +343,19 @@ function Slide1() {
               </div>
             </FloatCard>
 
-            {/* Floating card: Visa rate */}
-            <FloatCard depth={0.9} mouse={mouse} title="visa-tracker.app" style={{ top: -16, right: -56, minWidth: 128 }}>
+            {/* Floating card: Visa rate (upper-right) */}
+            <FloatCard depth={0.8} mouse={mouse} title="visa-tracker.app"
+              style={{ top: -20, right: -30, minWidth: 130, zIndex: 20,
+                transform: `translate(${mouse.x*0.8*14}px, ${mouse.y*0.8*14 + planeY * 0.22}px)` }}>
               <div style={{ fontSize: "0.6rem", color: "rgba(74,222,128,1)", letterSpacing: "0.08em", marginBottom: 6, fontWeight: 700 }}>VISA SUCCESS</div>
               <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "rgba(74,222,128,1)", lineHeight: 1 }}>99<span style={{ fontSize: "0.85rem", fontWeight: 600 }}>%</span></div>
               <div style={{ fontSize: "0.6rem", color: "rgba(235,225,210,0.88)", marginTop: 4 }}>Tỉ lệ thành công</div>
             </FloatCard>
 
-            {/* Floating card: Scholarship */}
-            <FloatCard depth={1.2} mouse={mouse} title="scholarship.app" style={{ bottom: 14, left: -80, minWidth: 158 }}>
+            {/* Floating card: Scholarship (lower-left, near contrails) */}
+            <FloatCard depth={1.1} mouse={mouse} title="scholarship.app"
+              style={{ bottom: 50, left: -70, minWidth: 160, zIndex: 20,
+                transform: `translate(${mouse.x*1.1*14}px, ${mouse.y*1.1*14 + planeY * 0.15}px)` }}>
               <div style={{ fontSize: "0.6rem", color: "var(--red)", letterSpacing: "0.08em", marginBottom: 8, fontWeight: 700 }}>HỌC BỔNG KHẢ DỤNG</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {[{ school: "UBC Vancouver", amt: "$8,000" }, { school: "McMaster", amt: "$5,000" }].map(s => (
@@ -283,8 +367,10 @@ function Slide1() {
               </div>
             </FloatCard>
 
-            {/* Floating card: Countries */}
-            <FloatCard depth={0.7} mouse={mouse} title="countries.app" style={{ bottom: -28, right: -48, minWidth: 138 }}>
+            {/* Floating card: Countries (lower-right) */}
+            <FloatCard depth={0.65} mouse={mouse} title="countries.app"
+              style={{ bottom: -10, right: -36, minWidth: 140, zIndex: 20,
+                transform: `translate(${mouse.x*0.65*14}px, ${mouse.y*0.65*14 + planeY * 0.10}px)` }}>
               <div style={{ fontSize: "0.6rem", color: "rgba(235,225,210,0.88)", letterSpacing: "0.08em", marginBottom: 8, fontWeight: 600 }}>QUỐC GIA PHỦ SÓNG</div>
               <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
                 {["🇺🇸","🇬🇧","🇨🇦","🇦🇺","🇸🇬","🇯🇵"].map(f => (
@@ -294,7 +380,7 @@ function Slide1() {
               <div style={{ fontSize: "0.62rem", color: "var(--gold)", marginTop: 7, fontWeight: 700 }}>30+ quốc gia</div>
             </FloatCard>
 
-            <LaptopMockup parallaxY={parallaxY} inView={inView} />
+            <AirplaneHero planeY={planeY} planeRotate={planeRotate} mouse={mouse} inView={inView} />
           </div>
         </div>{/* end hero row */}
 
