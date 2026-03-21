@@ -210,3 +210,74 @@ body { background: var(--ink); overflow-x: hidden; }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--ink); }
 ::-webkit-scrollbar-thumb { background: rgba(245,240,232,0.15); border-radius: 2px; }
+
+/* Responsive — tablet */
+@media (max-width: 900px) {
+  .laptop-hero-wrapper { display: none !important; }
+  .comparison-block-2col { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .problem-3col { grid-template-columns: 1fr !important; }
+  .contact-grid-2col { grid-template-columns: 1fr !important; gap: 48px !important; }
+  .testimonials-grid { grid-template-columns: 1fr 1fr !important; }
+  .engine-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+  .section-inner { padding: 80px 28px !important; }
+}
+
+/* Responsive — mobile (≤ 640px) */
+@media (max-width: 640px) {
+  /* Nav */
+  .nav-links { display: none !important; }
+
+  /* Hero */
+  .hero-row {
+    flex-direction: column !important;
+    padding: 100px 24px 48px !important;
+    align-items: flex-start !important;
+  }
+  .hero-text {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  .hero-cta {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .hero-cta button { width: 100% !important; }
+
+  /* Globe: hide on mobile (WebGL is heavy, text is enough) */
+  .globe-wrapper { display: none !important; }
+
+  /* Stats bar: 3-col stays on mobile (compact) */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr 1fr !important;
+    padding: 0 !important;
+  }
+  .stats-grid > div { padding: 20px 8px !important; }
+  .stats-grid > div .font-mono-dm { font-size: 1.8rem !important; }
+  .stats-grid > div > div:last-child { font-size: 0.72rem !important; }
+
+  /* Problem cards */
+  .problem-3col { gap: 16px !important; }
+
+  /* Engine */
+  .engine-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .section-inner { padding: 60px 20px !important; }
+
+  /* Profile form */
+  .profile-form-grid { grid-template-columns: 1fr !important; }
+  .profile-form-grid > div { grid-column: span 1 !important; }
+
+  /* Testimonials */
+  .testimonials-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+
+  /* Results cards */
+  .uni-card-details { display: none !important; }
+
+  /* Contact */
+  .contact-grid-2col { gap: 32px !important; }
+
+  /* Comparison table */
+  .comparison-block-2col { gap: 32px !important; }
+
+  /* Section padding overrides */
+  section { min-height: auto !important; }
+}

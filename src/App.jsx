@@ -52,7 +52,7 @@ function Nav() {
       >
         Study<span style={{ color: "var(--red)" }}>Mapper</span>
       </span>
-      <div style={{ display: "flex", gap: 32 }}>
+      <div className="nav-links" style={{ display: "flex", gap: 32 }}>
         {NAV_LINKS.map(({ label, id }) => (
           <span
             key={id}
@@ -510,10 +510,10 @@ function Slide1() {
       })}
 
       {/* ── Hero row ── */}
-      <div style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 0, padding: "100px 60px 60px", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+      <div className="hero-row" style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 0, padding: "100px 60px 60px", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
 
         {/* LEFT — text */}
-        <div style={{ flex: "0 0 auto", maxWidth: 460, position: "relative", zIndex: 5 }}>
+        <div className="hero-text" style={{ flex: "0 0 auto", maxWidth: 460, position: "relative", zIndex: 5 }}>
           <div className={`reveal ${inView ? "visible" : ""}`}>
             <span className="eyebrow">StudyMapper × ETEST — AI Study Abroad</span>
           </div>
@@ -526,14 +526,14 @@ function Slide1() {
             AI that personalizes your student's profile —<br />
             not generic advice like GPT.
           </p>
-          <div className={`reveal ${inView ? "visible" : ""} delay-3`} style={{ display: "flex", gap: 14, marginTop: 36 }}>
+          <div className={`hero-cta reveal ${inView ? "visible" : ""} delay-3`} style={{ display: "flex", gap: 14, marginTop: 36 }}>
             <button className="btn-primary" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>Get Started →</button>
             <button className="btn-ghost" onClick={() => document.getElementById("engine")?.scrollIntoView({ behavior: "smooth" })}>View Demo</button>
           </div>
         </div>
 
         {/* RIGHT — Earth Globe */}
-        <div style={{ position: "absolute", right: -20, top: "50%", transform: "translateY(-52%)", zIndex: 3 }}>
+        <div className="globe-wrapper" style={{ position: "absolute", right: -20, top: "50%", transform: "translateY(-52%)", zIndex: 3 }}>
           <LaptopMockup scrollY={scrollY} mouse={mouse} inView={inView} />
         </div>
       </div>
@@ -549,7 +549,7 @@ function Slide1() {
             ))}
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", maxWidth: 1100, margin: "0 auto", padding: "0 48px" }}>
+        <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", maxWidth: 1100, margin: "0 auto", padding: "0 48px" }}>
           {[
             { n: "5,000+", label: "UNIVERSITIES",  desc: "Updated every admission season" },
             { n: "30+",    label: "COUNTRIES",     desc: "Top study destinations worldwide" },
@@ -778,7 +778,7 @@ function Slide2() {
         </div>
 
         {/* Form grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div className="profile-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
           {fields.map((f, i) => (
             <div key={f.label} className={`reveal ${inView ? "visible" : ""} delay-${Math.min(i + 1, 5)}`} style={{ gridColumn: f.span === 2 ? "span 2" : "span 1" }}>
               <label style={{ display: "block", marginBottom: 8, fontSize: "0.78rem", letterSpacing: "0.08em", color: "var(--cream-dim)", textTransform: "uppercase" }}>{f.label}</label>
@@ -836,8 +836,8 @@ function Slide3() {
       <div className="glow-gold" style={{ width: 500, height: 500, top: "20%", right: "0%", opacity: 0.6 }} />
       <div className="glow-red" style={{ width: 300, height: 300, bottom: "10%", left: "5%", opacity: 0.4 }} />
 
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 1060, width: "100%", padding: "100px 40px", margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 80, alignItems: "start" }}>
+      <div className="section-inner" style={{ position: "relative", zIndex: 1, maxWidth: 1060, width: "100%", padding: "100px 40px", margin: "0 auto" }}>
+        <div className="engine-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 80, alignItems: "start" }}>
           {/* LEFT */}
           <div style={{ paddingTop: 8 }}>
             <span className={`eyebrow reveal-left ${inView ? "visible" : ""}`}>04 — Engine</span>
@@ -1082,7 +1082,7 @@ function SlideTestimonials() {
         </div>
 
         {/* Doctor-style cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, alignItems: "start" }}>
+        <div className="testimonials-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, alignItems: "start" }}>
           {stories.map((s, i) => (
             <div
               key={s.name}
