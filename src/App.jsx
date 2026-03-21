@@ -279,7 +279,7 @@ function LaptopMockup({ scrollY, mouse, inView }) {
   const parallaxY = scrollY * -0.28;
 
   // Setup controls once globe is ready — no user interaction, auto-rotate only
-  useEffect(() => {
+  const onGlobeReady = () => {
     if (!globeRef.current) return;
     const ctrl = globeRef.current.controls();
     ctrl.autoRotate      = true;
@@ -287,7 +287,7 @@ function LaptopMockup({ scrollY, mouse, inView }) {
     ctrl.enableZoom      = false;
     ctrl.enablePan       = false;
     ctrl.enableRotate    = false;
-  }, []);
+  };
 
   return (
     <div
@@ -330,6 +330,7 @@ function LaptopMockup({ scrollY, mouse, inView }) {
             ref={globeRef}
             width={SIZE}
             height={SIZE}
+            onGlobeReady={onGlobeReady}
             backgroundColor="rgba(0,0,0,0)"
             globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
             bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
