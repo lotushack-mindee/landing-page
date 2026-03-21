@@ -805,28 +805,51 @@ function Slide3() {
             </div>
           </div>
 
-          {/* RIGHT — steps */}
-          <div>
+          {/* RIGHT — steps with process line */}
+          <div style={{ position: "relative" }}>
+            {/* Vertical connector line 01→04 */}
+            <div style={{
+              position: "absolute",
+              left: 29, top: 30, bottom: 30,
+              width: 1.5,
+              background: "linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.15) 100%)",
+              zIndex: 0,
+            }}/>
+
             {steps.map((step, i) => {
               const isHovered = hovered === i;
+              const isFirst = i === 0;
               return (
                 <div key={step.num}
                   className={`reveal ${inView ? "visible" : ""} delay-${i + 1}`}
                   onMouseEnter={() => setHovered(i)}
                   onMouseLeave={() => setHovered(null)}
                   style={{
-                    display: "grid", gridTemplateColumns: "72px 1fr", gap: "0 24px",
-                    alignItems: "start", padding: "20px 20px 20px 16px", marginBottom: 12,
+                    display: "grid", gridTemplateColumns: "60px 1fr", gap: "0 20px",
+                    alignItems: "start", padding: "18px 20px 18px 0", marginBottom: 8,
                     borderRadius: 12,
                     border: isHovered ? "1px solid rgba(200,32,42,0.7)" : "1px solid transparent",
                     background: "transparent",
-                    boxShadow: isHovered ? "0 0 20px rgba(200,32,42,0.12), inset 0 0 0 1px rgba(200,32,42,0.1)" : "none",
+                    boxShadow: isHovered ? "0 0 20px rgba(200,32,42,0.12)" : "none",
                     cursor: "default",
+                    position: "relative", zIndex: 1,
                     transition: `opacity 0.7s ease ${i * 0.12}s, transform 0.7s ease ${i * 0.12}s, border 0.25s ease, box-shadow 0.25s ease`,
                   }}
                 >
-                  <div style={{ fontWeight: 700, fontSize: "2rem", color: i === 0 ? "var(--red)" : "var(--cream)", letterSpacing: "-0.02em", lineHeight: 1, paddingTop: 4 }}>{step.num}</div>
-                  <div>
+                  {/* Number column with dot on the line */}
+                  <div style={{ position: "relative", display: "flex", alignItems: "flex-start", justifyContent: "flex-end", paddingRight: 14, paddingTop: 6 }}>
+                    {/* Dot on the line */}
+                    <div style={{
+                      position: "absolute", right: 6, top: 8,
+                      width: isFirst ? 16 : 12, height: isFirst ? 16 : 12,
+                      borderRadius: "50%",
+                      background: isFirst ? "var(--red)" : "rgba(255,255,255,0.85)",
+                      boxShadow: isFirst ? "0 0 14px rgba(200,32,42,0.7)" : "0 0 6px rgba(255,255,255,0.3)",
+                      zIndex: 2,
+                    }}/>
+                    <div style={{ fontWeight: 700, fontSize: "1.9rem", color: isFirst ? "var(--red)" : "rgba(245,240,232,0.55)", letterSpacing: "-0.02em", lineHeight: 1 }}>{step.num}</div>
+                  </div>
+                  <div style={{ paddingTop: 4 }}>
                     <div style={{ fontWeight: 600, fontSize: "1.05rem", color: "var(--cream)", marginBottom: 10, lineHeight: 1.3 }}>{step.title}</div>
                     <div style={{ fontSize: "0.875rem", color: "var(--cream-dim)", lineHeight: 1.7 }}>{step.desc}</div>
                   </div>
@@ -1352,9 +1375,72 @@ function CursorLight() {
 }
 
 // ── App ────────────────────────────────────────────────────────────────────
+// ── Global parallax blob background (all slides) ───────────────────────────
+function GlobalParallaxBg() {
+  const [scrollY, setScrollY] = useState(0);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    const onMove  = (e) => setMouse({
+      x: (e.clientX - window.innerWidth  / 2) / window.innerWidth,
+      y: (e.clientY - window.innerHeight / 2) / window.innerHeight,
+    });
+    window.addEventListener("scroll",    onScroll, { passive: true });
+    window.addEventListener("mousemove", onMove,   { passive: true });
+    return () => {
+      window.removeEventListener("scroll",    onScroll);
+      window.removeEventListener("mousemove", onMove);
+    };
+  }, []);
+
+  // Each blob: [top-offset-px, left%, w, h, color, scrollFactor, mouseFactor, borderRadius]
+  const BLOBS = [
+    [  120, "58%", 700, 620, "rgba(200,32,42,0.30)",   0.18, 50, "62% 38% 55% 45%"],
+    [  480, "62%", 520, 460, "rgba(232,160,32,0.24)",  0.28, 32, "45% 55% 42% 58%"],
+    [  900, "5%",  480, 440, "rgba(200,32,42,0.22)",   0.12, 40, "55% 45% 60% 40%"],
+    [ 1300, "68%", 420, 380, "rgba(232,160,32,0.20)",  0.32, 28, "40% 60% 48% 52%"],
+    [ 1800, "10%", 560, 500, "rgba(200,32,42,0.24)",   0.22, 36, "58% 42% 52% 48%"],
+    [ 2300, "60%", 400, 360, "rgba(232,160,32,0.18)",  0.38, 22, "48% 52% 38% 62%"],
+    [ 2800, "25%", 500, 460, "rgba(200,32,42,0.20)",   0.15, 44, "52% 48% 58% 42%"],
+    [ 3400, "65%", 460, 420, "rgba(232,160,32,0.22)",  0.26, 26, "42% 58% 52% 48%"],
+    [ 4000, "15%", 540, 480, "rgba(200,32,42,0.18)",   0.20, 38, "60% 40% 48% 52%"],
+    [ 4600, "55%", 380, 340, "rgba(232,160,32,0.16)",  0.34, 20, "44% 56% 42% 58%"],
+  ];
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none" }}>
+      {BLOBS.map(([topPx, left, w, h, color, sf, mf, br], i) => {
+        // Blob moves at `sf` of the scroll speed → parallax drift
+        const ty = -(scrollY - topPx) * sf + mouse.y * mf;
+        const tx = mouse.x * mf;
+        // Visible when blob's "page position" is near the viewport
+        const dist = Math.abs(scrollY - topPx);
+        const opacity = Math.max(0, 1 - dist / 1400);
+        return (
+          <div key={i} style={{
+            position: "absolute",
+            top: topPx - scrollY * (1 - sf),
+            left,
+            width: w, height: h,
+            borderRadius: br,
+            background: color,
+            filter: `blur(${85 + i * 8}px)`,
+            transform: `translate(${tx}px, ${ty}px)`,
+            transition: "transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94)",
+            opacity: Math.min(opacity * 1.4, 1),
+            willChange: "transform, opacity",
+          }}/>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <div style={{ background: "var(--ink)", minHeight: "100vh" }}>
+      <GlobalParallaxBg />
       <CursorLight />
       <Nav />
       <Slide1 />
