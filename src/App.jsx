@@ -526,9 +526,22 @@ function Slide1() {
             AI that personalizes your student's profile —<br />
             not generic advice like GPT.
           </p>
-          <div className={`hero-cta reveal ${inView ? "visible" : ""} delay-3`} style={{ display: "flex", gap: 14, marginTop: 36 }}>
-            <button className="btn-primary" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>Get Started →</button>
-            <button className="btn-ghost" onClick={() => document.getElementById("engine")?.scrollIntoView({ behavior: "smooth" })}>View Demo</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 28, marginTop: 36, flexWrap: "wrap" }}>
+            {/* Buttons */}
+            <div className={`hero-cta reveal ${inView ? "visible" : ""} delay-3`} style={{ display: "flex", gap: 14 }}>
+              <button className="btn-primary" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>Get Started →</button>
+              <button className="btn-ghost" onClick={() => document.getElementById("engine")?.scrollIntoView({ behavior: "smooth" })}>View Demo</button>
+            </div>
+
+            {/* QR code */}
+            <div className={`reveal ${inView ? "visible" : ""} delay-4`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(245,240,232,0.35)", fontFamily: "'Be Vietnam Pro', sans-serif", fontWeight: 600 }}>Scan Me</span>
+              <img
+                src="/qr.png"
+                alt="QR – studymapper.etest.edu.vn"
+                style={{ width: 72, height: 72, borderRadius: 8, display: "block", objectFit: "cover" }}
+              />
+            </div>
           </div>
         </div>
 
