@@ -1504,12 +1504,26 @@ function HackathonBanner() {
             fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 800, color: "var(--cream)",
             letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 20, position: "relative", zIndex: 1,
           }}>
-            StudyMapper<br />
-            <span style={{ color: "var(--red)" }}>× ETEST</span>
+            Meet your AI<br />
+            <span style={{ color: "var(--red)" }}>university advisor</span>
           </div>
 
           {/* Divider */}
           <div style={{ width: 48, height: 2, background: "rgba(200,32,42,0.5)", borderRadius: 2, marginBottom: 20 }} />
+
+          {/* Feature pills */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 24, position: "relative", zIndex: 1 }}>
+            {["💬 Talks with you", "🎯 Learns your interests", "🎓 5,000+ universities", "🌍 30+ countries"].map(tag => (
+              <span key={tag} style={{
+                fontSize: "0.75rem", padding: "5px 12px",
+                borderRadius: 20,
+                background: "rgba(245,240,232,0.06)",
+                border: "1px solid rgba(245,240,232,0.1)",
+                color: "rgba(245,240,232,0.65)",
+                fontFamily: "'Be Vietnam Pro', sans-serif",
+              }}>{tag}</span>
+            ))}
+          </div>
 
           {/* Description */}
           <p style={{
@@ -1519,7 +1533,7 @@ function HackathonBanner() {
             fontFamily: "'Be Vietnam Pro', sans-serif",
             position: "relative", zIndex: 1,
           }}>
-            An AI-powered study abroad advisor built for the <strong style={{ color: "rgba(245,240,232,0.85)" }}>Lotus Hackathon EdTech track</strong> in partnership with <strong style={{ color: "rgba(245,240,232,0.85)" }}>ETEST</strong> — helping families find the perfect school match worldwide.
+            An AI agent that <strong style={{ color: "rgba(245,240,232,0.85)" }}>talks with students</strong> to understand their hobbies, interests, and major — then searches <strong style={{ color: "rgba(245,240,232,0.85)" }}>5,000+ universities</strong> to find their perfect match. Built for the <strong style={{ color: "rgba(245,240,232,0.85)" }}>Lotus Hackathon EdTech track</strong> × <strong style={{ color: "rgba(245,240,232,0.85)" }}>ETEST</strong>.
           </p>
 
           {/* CTAs */}
