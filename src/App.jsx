@@ -1398,6 +1398,159 @@ function Slide6() {
   );
 }
 
+// ── Hackathon Banner (first visit only) ────────────────────────────────────
+function HackathonBanner() {
+  const [visible, setVisible] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem("lh_banner_seen")) {
+      setTimeout(() => setVisible(true), 600);
+    }
+  }, []);
+
+  const dismiss = () => {
+    setClosing(true);
+    localStorage.setItem("lh_banner_seen", "1");
+    setTimeout(() => setVisible(false), 400);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div onClick={dismiss} style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "rgba(0,0,0,0.55)",
+        backdropFilter: "blur(4px)",
+        opacity: closing ? 0 : 1,
+        transition: "opacity 0.4s ease",
+      }} />
+
+      {/* Modal */}
+      <div style={{
+        position: "fixed",
+        top: "50%", left: "50%",
+        transform: closing
+          ? "translate(-50%, -48%) scale(0.97)"
+          : "translate(-50%, -50%) scale(1)",
+        zIndex: 10000,
+        width: "70vw", height: "70vh",
+        background: "linear-gradient(135deg, #13171f 0%, #1a0d0f 100%)",
+        border: "1px solid rgba(200,32,42,0.45)",
+        borderRadius: 24,
+        boxShadow: "0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(200,32,42,0.15), 0 0 60px rgba(200,32,42,0.14)",
+        opacity: closing ? 0 : 1,
+        transition: "opacity 0.4s ease, transform 0.4s ease",
+        animation: "bannerSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        display: "flex", flexDirection: "column",
+        overflow: "hidden",
+      }}>
+        {/* Close button */}
+        <button onClick={dismiss} style={{
+          position: "absolute", top: 16, right: 16,
+          background: "rgba(245,240,232,0.07)", border: "none",
+          borderRadius: "50%", width: 36, height: 36,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer", color: "rgba(245,240,232,0.5)",
+          fontSize: "1.1rem", lineHeight: 1,
+          transition: "background 0.2s, color 0.2s",
+          zIndex: 2,
+        }}
+          onMouseEnter={e => { e.currentTarget.style.background = "rgba(245,240,232,0.14)"; e.currentTarget.style.color = "var(--cream)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "rgba(245,240,232,0.07)"; e.currentTarget.style.color = "rgba(245,240,232,0.5)"; }}
+        >✕</button>
+
+        {/* Top accent bar */}
+        <div style={{ height: 4, background: "linear-gradient(90deg, var(--red) 0%, #e85030 50%, #e8a020 100%)", flexShrink: 0 }} />
+
+        {/* Body */}
+        <div style={{
+          flex: 1, display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          padding: "48px 56px", textAlign: "center",
+          position: "relative", overflow: "hidden",
+        }}>
+          {/* Background glow */}
+          <div style={{
+            position: "absolute", top: "20%", left: "50%",
+            transform: "translateX(-50%)",
+            width: 500, height: 300,
+            background: "radial-gradient(ellipse, rgba(200,32,42,0.15) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }} />
+
+          {/* Badge row */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24, position: "relative", zIndex: 1 }}>
+            <span style={{
+              fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.15em",
+              textTransform: "uppercase", color: "#fff",
+              background: "var(--red)", borderRadius: 8,
+              padding: "5px 12px", fontFamily: "'Be Vietnam Pro', sans-serif",
+            }}>🌸 Lotus Hackathon</span>
+            <span style={{
+              fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "rgba(245,240,232,0.45)",
+              fontFamily: "'Be Vietnam Pro', sans-serif",
+            }}>× EdTech Track</span>
+          </div>
+
+          {/* Title */}
+          <div className="font-display" style={{
+            fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 800, color: "var(--cream)",
+            letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 20, position: "relative", zIndex: 1,
+          }}>
+            StudyMapper<br />
+            <span style={{ color: "var(--red)" }}>× ETEST</span>
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: 48, height: 2, background: "rgba(200,32,42,0.5)", borderRadius: 2, marginBottom: 20 }} />
+
+          {/* Description */}
+          <p style={{
+            fontSize: "clamp(0.88rem, 1.2vw, 1.05rem)",
+            color: "rgba(245,240,232,0.55)", lineHeight: 1.75,
+            maxWidth: 520, marginBottom: 36,
+            fontFamily: "'Be Vietnam Pro', sans-serif",
+            position: "relative", zIndex: 1,
+          }}>
+            An AI-powered study abroad advisor built for the <strong style={{ color: "rgba(245,240,232,0.85)" }}>Lotus Hackathon EdTech track</strong> in partnership with <strong style={{ color: "rgba(245,240,232,0.85)" }}>ETEST</strong> — helping families find the perfect school match worldwide.
+          </p>
+
+          {/* CTAs */}
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center", position: "relative", zIndex: 1 }}>
+            <button
+              className="btn-primary"
+              onClick={() => { window.open("https://lotushack.rotexai.com", "_blank"); dismiss(); }}
+              style={{ fontSize: "0.9rem", padding: "13px 28px" }}
+            >
+              Explore the Project →
+            </button>
+            <button
+              onClick={dismiss}
+              style={{
+                fontSize: "0.9rem", padding: "13px 28px",
+                background: "transparent",
+                border: "1px solid rgba(245,240,232,0.15)",
+                borderRadius: 8, color: "rgba(245,240,232,0.5)",
+                cursor: "pointer", fontFamily: "'Be Vietnam Pro', sans-serif",
+                transition: "border-color 0.2s, color 0.2s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(245,240,232,0.35)"; e.currentTarget.style.color = "var(--cream)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(245,240,232,0.15)"; e.currentTarget.style.color = "rgba(245,240,232,0.5)"; }}
+            >
+              Maybe later
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Cursor light ───────────────────────────────────────────────────────────
 function CursorLight() {
   const lightRef = useRef(null);
@@ -1491,6 +1644,7 @@ export default function App() {
     <div style={{ background: "var(--ink)", minHeight: "100vh" }}>
       <GlobalParallaxBg />
       <CursorLight />
+      <HackathonBanner />
       <Nav />
       <Slide1 />
       <SlideProblem />
