@@ -484,9 +484,8 @@ function Slide1() {
             <span className="eyebrow">StudyMapper × ETEST — AI University Advisor</span>
           </div>
           <h1 className={`font-display reveal ${inView ? "visible" : ""} delay-1`} style={{ fontSize: "clamp(2.6rem, 4.2vw, 4rem)", fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.03em", marginTop: 20, color: "var(--cream)" }}>
-            Your AI agent that{" "}
-            <span style={{ color: "var(--gold)", fontStyle: "italic", textShadow: "0 0 40px rgba(232,160,32,0.5)" }}>listens</span>
-            <br />finds your university.
+            Your personal AI assistant<br />for finding the{" "}
+            <span style={{ color: "var(--gold)", fontStyle: "italic", textShadow: "0 0 40px rgba(232,160,32,0.5)" }}>right university.</span>
           </h1>
           <p className={`reveal ${inView ? "visible" : ""} delay-2`} style={{ marginTop: 24, fontSize: "1rem", lineHeight: 1.8, color: "var(--cream-dim)" }}>
             Just have a conversation. Our AI learns your<br />
