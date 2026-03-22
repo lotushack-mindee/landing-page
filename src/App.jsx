@@ -1406,14 +1406,11 @@ function HackathonBanner() {
   const [closing, setClosing] = useState(false);
 
   useEffect(() => {
-    if (!localStorage.getItem("lh_banner_seen")) {
-      setTimeout(() => setVisible(true), 600);
-    }
+    setTimeout(() => setVisible(true), 600);
   }, []);
 
   const dismiss = () => {
     setClosing(true);
-    localStorage.setItem("lh_banner_seen", "1");
     setTimeout(() => setVisible(false), 400);
   };
 
