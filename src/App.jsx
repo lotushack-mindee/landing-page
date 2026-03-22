@@ -481,16 +481,16 @@ function Slide1() {
         {/* LEFT — text */}
         <div className="hero-text" style={{ flex: "0 0 auto", maxWidth: 460, position: "relative", zIndex: 5 }}>
           <div className={`reveal ${inView ? "visible" : ""}`}>
-            <span className="eyebrow">StudyMapper × ETEST — AI Study Abroad</span>
+            <span className="eyebrow">StudyMapper × ETEST — AI University Advisor</span>
           </div>
           <h1 className={`font-display reveal ${inView ? "visible" : ""} delay-1`} style={{ fontSize: "clamp(2.6rem, 4.2vw, 4rem)", fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.03em", marginTop: 20, color: "var(--cream)" }}>
-            Find the{" "}
-            <span style={{ color: "var(--gold)", fontStyle: "italic", textShadow: "0 0 40px rgba(232,160,32,0.5)" }}>right</span>
-            <br />school for your child.
+            Your AI agent that{" "}
+            <span style={{ color: "var(--gold)", fontStyle: "italic", textShadow: "0 0 40px rgba(232,160,32,0.5)" }}>listens</span>
+            <br />finds your university.
           </h1>
           <p className={`reveal ${inView ? "visible" : ""} delay-2`} style={{ marginTop: 24, fontSize: "1rem", lineHeight: 1.8, color: "var(--cream-dim)" }}>
-            AI that personalizes your student's profile —<br />
-            not generic advice like GPT.
+            Just have a conversation. Our AI learns your<br />
+            hobbies, interests & goals — then searches 5,000+ universities to find your perfect match.
           </p>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginTop: 36 }}>
             {/* Buttons — stacked, equal width */}
@@ -530,9 +530,9 @@ function Slide1() {
         </div>
         <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", maxWidth: 1100, margin: "0 auto", padding: "0 48px" }}>
           {[
-            { n: "5,000+", label: "UNIVERSITIES",  desc: "Updated every admission season" },
+            { n: "5,000+", label: "UNIVERSITIES",  desc: "Searched by the AI for your match" },
             { n: "30+",    label: "COUNTRIES",     desc: "Top study destinations worldwide" },
-            { n: "98%",    label: "AI ACCURACY",   desc: "Matched to real student profiles" },
+            { n: "< 5 min", label: "TO YOUR MATCH", desc: "One conversation. Instant results." },
           ].map(({ n, label, desc }, i) => (
             <div key={label} style={{ padding: "44px 40px", borderLeft: i > 0 ? "1px solid rgba(200,32,42,0.15)" : "none", textAlign: "center" }}>
               <div className="font-mono-dm" style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 800, color: "var(--ink)", lineHeight: 1, letterSpacing: "-0.02em" }}>{n}</div>
@@ -556,12 +556,12 @@ function SlideProblem() {
   const [ref, inView] = useInView(0.1);
 
   const compare = [
-    { label: "Profile personalization" },
-    { label: "Understands family budget" },
-    { label: "Data from 5,000+ universities" },
+    { label: "Conversational AI — no forms to fill" },
+    { label: "Learns your hobbies, interests & goals" },
+    { label: "Matches across 5,000+ universities" },
     { label: "Real acceptance & scholarship rates" },
-    { label: "Visa & roadmap advisory" },
-    { label: "Vietnamese student profile analysis" },
+    { label: "Understands budget & visa requirements" },
+    { label: "Personalized roadmap in minutes" },
   ];
 
   const LIME = "#c5f542";
@@ -601,9 +601,9 @@ function SlideProblem() {
           {/* 3 cards */}
           <div className="problem-3col" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
             {[
-              { title: "Information Overload",  desc: "10,000+ programs, 30+ countries — no tool to compare them objectively." },
-              { title: "Generic AI Advice",     desc: "GPT ignores your child's GPA, budget, and visa odds. One size fits none." },
-              { title: "Consulting Costs $3–5K",desc: "$3,000–$5,000 per application, no outcome guarantee, unaffordable for most." },
+              { title: "5,000+ Universities, Zero Guidance",  desc: "Too many options across 30+ countries — no way to know which ones actually fit you." },
+              { title: "Generic AI Gives Generic Answers",    desc: "ChatGPT doesn't know your hobbies, your strengths, or your budget. Our agent does." },
+              { title: "Human Advisors Cost $3–5K",          desc: "$3,000–$5,000 per consultation, no outcome guarantee — unaffordable for most students." },
             ].map((p, i) => (
               <div
                 key={p.title}
@@ -722,16 +722,16 @@ function SlideProblem() {
 function Slide2() {
   const [ref, inView] = useInView(0.1);
   const fields = [
-    { label: "Full Name", placeholder: "John Smith", type: "text", span: 1 },
-    { label: "Current Grade", type: "select", options: ["Grade 10", "Grade 11", "Grade 12", "Graduated"], span: 1 },
-    { label: "GPA / Average Score", placeholder: "8.5 / 10", type: "text", span: 1 },
-    { label: "IELTS / TOEFL Score", placeholder: "e.g. IELTS 6.5 or TOEFL 85", type: "text", span: 1 },
-    { label: "Desired Major", type: "select", options: ["Computer Science", "Business & Finance", "Engineering", "Medicine & Health", "Arts & Design", "Law", "Education", "Social Sciences"], span: 1 },
-    { label: "Target Country", type: "select", options: ["USA 🇺🇸", "UK 🇬🇧", "Canada 🇨🇦", "Australia 🇦🇺", "Singapore 🇸🇬", "Japan 🇯🇵", "Netherlands 🇳🇱", "Germany 🇩🇪"], span: 1 },
-    { label: "Budget / Year (USD)", type: "select", options: ["< $15,000", "$15,000 – $25,000", "$25,000 – $40,000", "$40,000+"], span: 1 },
-    { label: "Scholarship Need", type: "select", options: ["No scholarship needed", "Partial scholarship needed (<50%)", "Large scholarship needed (50–80%)", "Need full scholarship"], span: 1 },
-    { label: "Intended Enrollment", type: "select", options: ["2025", "2026", "2027", "Not yet decided"], span: 1 },
-    { label: "Achievements / Extracurriculars", placeholder: "e.g. National Math Award, Robotics Club, Volunteer work...", type: "text", span: 1 },
+    { label: "Your Name", placeholder: "e.g. Minh Nguyen", type: "text", span: 1 },
+    { label: "Current Grade / Level", type: "select", options: ["Grade 10", "Grade 11", "Grade 12", "Gap Year", "Undergraduate", "Graduated"], span: 1 },
+    { label: "Hobbies & Passions", placeholder: "e.g. coding, painting, football, music...", type: "text", span: 1 },
+    { label: "Subjects You Love", placeholder: "e.g. Math, Biology, Literature, Programming...", type: "text", span: 1 },
+    { label: "Intended Major / Field", type: "select", options: ["Computer Science & AI", "Business & Finance", "Engineering", "Medicine & Health", "Arts & Design", "Law", "Education", "Social Sciences", "Not sure yet"], span: 1 },
+    { label: "Preferred Region", type: "select", options: ["USA 🇺🇸", "UK 🇬🇧", "Canada 🇨🇦", "Australia 🇦🇺", "Singapore 🇸🇬", "Japan 🇯🇵", "Europe 🇪🇺", "Open to suggestions"], span: 1 },
+    { label: "Annual Budget (USD)", type: "select", options: ["< $15,000", "$15,000 – $25,000", "$25,000 – $40,000", "$40,000+", "Need full scholarship"], span: 1 },
+    { label: "Career Dream", placeholder: "e.g. start a tech company, work in healthcare...", type: "text", span: 1 },
+    { label: "GPA / Academic Score", placeholder: "e.g. 8.5/10 or 3.8/4.0", type: "text", span: 1 },
+    { label: "Anything else the AI should know?", placeholder: "Achievements, extracurriculars, concerns...", type: "text", span: 1 },
   ];
 
   return (
@@ -746,13 +746,13 @@ function Slide2() {
       <div style={{ position: "relative", zIndex: 1, maxWidth: 900, width: "100%", padding: "100px 32px" }}>
         {/* Header */}
         <div className={`reveal ${inView ? "visible" : ""}`} style={{ marginBottom: 56 }}>
-          <span className="eyebrow">03 — Profile</span>
+          <span className="eyebrow">03 — What the AI Learns About You</span>
           <div className="section-divider" style={{ margin: "12px 0 20px" }} />
           <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3.2rem)", fontWeight: 600, color: "var(--cream)", letterSpacing: "-0.02em", lineHeight: 1.15 }}>
-            Tell the AI about your child.
+            Just talk. The AI<br />does the rest.
           </h2>
           <p style={{ color: "var(--cream-dim)", marginTop: 12, fontSize: "1rem" }}>
-            More detail — more accurate matching results.
+            No long forms. Our AI agent gathers everything through natural conversation — then matches you across 5,000+ universities.
           </p>
         </div>
 
@@ -799,10 +799,10 @@ function Slide2() {
 function Slide3() {
   const [ref, inView] = useInView(0.1);
   const steps = [
-    { num: "01.", title: "Collect Profile", desc: "Input GPA, IELTS, major, budget, and target country — takes under 3 minutes." },
-    { num: "02.", title: "AI Matching", desc: "Profile matched against 5,000+ universities using real admissions data, updated each season." },
-    { num: "03.", title: "Score & Rank", desc: "Acceptance probability predicted from 10,000+ real student outcomes." },
-    { num: "04.", title: "Your Roadmap", desc: "Top schools ranked by fit — with scholarships, visa odds, and a clear action plan." },
+    { num: "01.", title: "Start a Conversation", desc: "No forms. Just talk to our AI agent — tell it about your hobbies, passions, and dreams. It listens like a real advisor." },
+    { num: "02.", title: "AI Learns Your Profile", desc: "The agent asks smart follow-up questions to understand your major interest, academic level, budget, and career goals." },
+    { num: "03.", title: "Search 5,000+ Universities", desc: "Your profile is matched against our database of 5,000+ universities across 30+ countries using real admissions data." },
+    { num: "04.", title: "Your Personalized Shortlist", desc: "Get your top university matches ranked by fit — complete with scholarships, visa odds, and a step-by-step roadmap." },
   ];
 
   return (
@@ -822,11 +822,11 @@ function Slide3() {
             <span className={`eyebrow reveal-left ${inView ? "visible" : ""}`}>04 — Engine</span>
             <div className={`section-divider reveal-left ${inView ? "visible" : ""} delay-1`} style={{ margin: "14px 0 24px" }} />
             <h2 className={`font-display reveal-left ${inView ? "visible" : ""} delay-1`} style={{ fontSize: "clamp(1.9rem, 3vw, 2.8rem)", fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.02em", color: "var(--cream)" }}>
-              From profile<br />to the right school,{" "}
-              <span style={{ color: "var(--gold)", fontStyle: "italic" }}>step by step.</span>
+              One conversation.<br />
+              <span style={{ color: "var(--gold)", fontStyle: "italic" }}>5,000+ universities</span><br />searched for you.
             </h2>
             <p className={`reveal-left ${inView ? "visible" : ""} delay-2`} style={{ color: "var(--cream-dim)", marginTop: 20, fontSize: "0.95rem", lineHeight: 1.75 }}>
-              Fully automated process —<br />results in seconds.
+              The AI agent asks the right questions —<br />your match is ready in under 5 minutes.
             </p>
 
             {/* Mini stat */}
@@ -1162,26 +1162,28 @@ function SlideTestimonials() {
 function Slide5() {
   const [ref, inView] = useInView(0.1);
   const [messages, setMessages] = useState([
-    { role: "ai", text: "Hello! I'm StudyMapper's AI study abroad advisor 👋\nWhat would you like to know about choosing a school?" },
-    { role: "user", text: "My child is in Grade 12, GPA 8.7, wants to study Computer Science in Canada, budget $25k/year" },
-    { role: "ai", text: "Based on your profile, here are the 3 best-fit schools:\n\n🥇 University of Toronto — Match 94% · Acceptance ~72% · Merit Scholarship $12,000\n🥈 UBC Vancouver — Match 89% · Safer option · Scholarship $8,000\n🥉 McMaster — Match 83% · Easiest to get in · Scholarship $5,000\n\nWhich school would you like me to analyze in detail?" },
+    { role: "ai", text: "Hey! I'm your AI university advisor 👋 I'm here to find the perfect university for YOU — not a generic list.\n\nLet's start simple: what are some things you genuinely love doing? Hobbies, subjects, anything!" },
+    { role: "user", text: "I love coding, I also really enjoy music and playing guitar. I'm in Grade 12." },
+    { role: "ai", text: "That's a great combo — tech + creativity! 🎸💻 A lot of top CS programs actually value that balance.\n\nQuick question: when you imagine your future career, what excites you most? Building apps, AI research, game dev, something else?" },
+    { role: "user", text: "Probably AI or something in tech. Budget around $25k/year, open to Canada or Australia." },
+    { role: "ai", text: "Perfect. Searching 5,000+ universities for your profile...\n\n🥇 University of Toronto — CS + AI track · Match 94% · Scholarship $12,000/yr\n🥈 University of Melbourne — Tech & Innovation · Match 88% · Merit $8,000\n🥉 UBC Vancouver — Strong CS community · Match 85% · Scholarship $8,000\n\nWant me to break down admission odds or scholarships for any of these?" },
   ]);
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
   const isFirstRender = useRef(true);
 
   const quickPrompts = [
-    "What IELTS score does UofT require?",
-    "Compare tuition: Canada vs Australia",
-    "Which scholarships fit a GPA of 8.5?",
-    "Canada visa approval rate for students?",
+    "I love design and tech — what major fits?",
+    "Find universities that value extracurriculars",
+    "I want a scholarship, GPA 8.5",
+    "Best countries for an AI career?",
   ];
 
   const send = () => {
     if (!input.trim()) return;
     setMessages(m => [...m,
       { role: "user", text: input },
-      { role: "ai", text: "Analyzing data from 5,000+ universities... Results coming right up 🔍" }
+      { role: "ai", text: "Got it! Let me search across 5,000+ universities for that... 🔍" }
     ]);
     setInput("");
   };
